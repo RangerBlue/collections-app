@@ -1,0 +1,235 @@
+<div class="validate-item-container">
+  <header class="validate-item-header">
+    <h1>Check Item</h1>
+    <button class="btn btn-cancel" (click)="cancel()">Cancel</button>
+  </header>
+
+  @if (error()) {
+    <div class="error-container">
+      <p class="error-message">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Step 1: Collection Selection -->
+  @if (currentStep() === 'collection-selection') {
+    <div class="collection-selection">
+      <h2>Select Collection to Check</h2>
+
+      @if (isLoadingCollections()) {
+        <div class="loading-collections">
+          <div class="spinner"></div>
+          <p>Loading collections...</p>
+        </div>
+      } @else {
+        @if (collections().length > 0 && !isCreatingNew()) {
+          <div class="collections-list">
+            @for (collection of collections(); track collection) {
+              <button
+                class="collection-btn"
+                [class.selected]="selectedCollection() === collection"
+                (click)="selectCollection(collection)">
+                {{ collection }}
+              </button>
+            }
+          </div>
+        }
+
+        <div class="create-new-section">
+          @if (!isCreatingNew()) {
+            <button class="btn btn-link" (click)="toggleCreateNew()">
+              + Check new collection
+            </button>
+          } @else {
+            <div class="new-collection-form">
+              <label for="newCollectionName">Collection name</label>
+              <input
+                type="text"
+                id="newCollectionName"
+                [ngModel]="newCollectionName()"
+                (ngModelChange)="newCollectionName.set($event)"
+                name="newCollectionName"
+                placeholder="Enter collection name" />
+              @if (collections().length > 0) {
+                <button class="btn btn-link" (click)="toggleCreateNew()">
+                  Select existing collection
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="collection-actions">
+          <button
+            class="btn btn-primary"
+            (click)="confirmCollection()"
+            [disabled]="(!selectedCollection() && !isCreatingNew()) || (isCreatingNew() && !newCollectionName().trim())">
+            Continue
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Step 2: Source Selection -->
+  @if (currentStep() === 'source-selection') {
+    <div class="source-selection">
+      <div class="selected-collection-badge">
+        Checking: <strong>{{ selectedCollection() }}</strong>
+      </div>
+      <h2>Choose Image Source</h2>
+      <div class="source-options">
+        <button class="source-btn" (click)="selectCamera()">
+          <span class="source-icon">📷</span>
+          <span>Take Picture</span>
+        </button>
+        <button class="source-btn" (click)="selectUpload()">
+          <span class="source-icon">📁</span>
+          <span>Upload Image</span>
+        </button>
+      </div>
+      <div class="source-actions">
+        <button class="btn btn-secondary" (click)="goBackToCollectionSelection()">
+          Back
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Camera Capture -->
+  @if (currentStep() === 'capture') {
+    <div class="camera-container">
+      <video
+        #videoElement
+        autoplay
+        playsinline
+        class="camera-preview">
+      </video>
+      <canvas #canvasElement class="hidden-canvas"></canvas>
+
+      <div class="camera-controls">
+        <button class="btn btn-secondary" (click)="retakePicture()">
+          Back
+        </button>
+        <button
+          class="btn btn-capture"
+          (click)="capturePhoto()"
+          [disabled]="!isCameraActive()">
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 4: Crop Image -->
+  @if (currentStep() === 'crop') {
+    <div class="crop-container">
+      <div class="crop-controls">
+        <button
+          class="btn btn-shape"
+          [class.active]="cropShape() === 'rectangle'"
+          (click)="cropShape.set('rectangle')">
+          Rectangle
+        </button>
+        <button
+          class="btn btn-shape"
+          [class.active]="cropShape() === 'circle'"
+          (click)="cropShape.set('circle')">
+          Circle
+        </button>
+      </div>
+
+      <div class="cropper-wrapper">
+        <image-cropper
+          [imageBase64]="imageSource()"
+          [maintainAspectRatio]="false"
+          [aspectRatio]="1"
+          [resizeToWidth]="800"
+          format="jpeg"
+          [roundCropper]="cropShape() === 'circle'"
+          (imageCropped)="onImageCropped($event)"
+          (imageLoaded)="onImageLoaded($event)"
+          (cropperReady)="onCropperReady()"
+          (loadImageFailed)="onLoadImageFailed()">
+        </image-cropper>
+      </div>
+
+      <div class="crop-actions">
+        <button class="btn btn-secondary" (click)="retakePicture()">
+          Retake
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="confirmCrop()"
+          [disabled]="!croppedImage()">
+          Check Collection
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 5: Validating -->
+  @if (currentStep() === 'validating') {
+    <div class="validating-container">
+      <div class="spinner"></div>
+      <p>Checking your collection...</p>
+    </div>
+  }
+
+  <!-- Step 6: Results -->
+  @if (currentStep() === 'results') {
+    <div class="results-container">
+      <div class="selected-collection-badge">
+        Collection: <strong>{{ selectedCollection() }}</strong>
+      </div>
+
+      @if (croppedImage(); as blob) {
+        <div class="checked-image">
+          <img
+            [src]="blob | blobToUrl"
+            alt="Checked image"
+            [class.circle]="cropShape() === 'circle'" />
+        </div>
+      }
+
+      @if (!hasSimilarItems()) {
+        <div class="result-success">
+          <div class="result-icon">✓</div>
+          <h2>Not Found in Collection</h2>
+          <p>This item doesn't appear to be in your collection yet. You can safely add it!</p>
+        </div>
+      } @else {
+        <div class="result-warning">
+          <div class="result-icon">!</div>
+          <h2>Similar Items Found</h2>
+          <p>We found {{ similarItems().length }} similar item(s) in your collection:</p>
+        </div>
+
+        <div class="similar-items-grid">
+          @for (item of similarItems(); track item.id) {
+            <div class="similar-item">
+              @if (item.imageUrl) {
+                <img [src]="item.imageUrl" [alt]="item.name" class="similar-item-image" />
+              } @else {
+                <div class="similar-item-image-placeholder">
+                  <span>No Image</span>
+                </div>
+              }
+              <div class="similar-item-details">
+                <h3 class="similar-item-name">{{ item.name }}</h3>
+                <p class="similarity-score">{{ (item.similarityScore * 100).toFixed(0) }}% match</p>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="results-actions">
+        <button class="btn btn-secondary" (click)="checkAnother()">
+          Check Another
+        </button>
+        <button class="btn btn-primary" (click)="cancel()">
+          Done
+        </button>
+      </div>
+    </div>
+  }
+</div>

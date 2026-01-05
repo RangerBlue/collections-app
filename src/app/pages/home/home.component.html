@@ -1,0 +1,35 @@
+<div class="home-container">
+  <div class="hero">
+    <h1>Welcome to Collections App</h1>
+    <p class="subtitle">Organize and explore your bottle cap collection</p>
+
+    @if (authService.isLoading()) {
+      <p class="loading">Loading...</p>
+    } @else if (authService.isAuthenticated()) {
+      <div class="cta-section">
+        <p>Welcome back, {{ authService.userProfile()?.name }}!</p>
+        <a routerLink="/collection" class="btn btn-primary">View My Collection</a>
+      </div>
+    } @else {
+      <div class="cta-section">
+        <p>Sign in to start managing your collection</p>
+        <a routerLink="/login" class="btn btn-primary">Get Started</a>
+      </div>
+    }
+  </div>
+
+  <div class="features">
+    <div class="feature-card">
+      <h3>Organize</h3>
+      <p>Keep track of all your bottle caps in one place</p>
+    </div>
+    <div class="feature-card">
+      <h3>Discover</h3>
+      <p>Browse through your collection with ease</p>
+    </div>
+    <div class="feature-card">
+      <h3>Share</h3>
+      <p>Show off your unique finds</p>
+    </div>
+  </div>
+</div>

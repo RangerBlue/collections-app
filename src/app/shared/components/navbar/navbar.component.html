@@ -1,0 +1,38 @@
+<nav class="navbar">
+  <div class="nav-brand">
+    <a routerLink="/">Collections App</a>
+  </div>
+
+  <div class="nav-links">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      Home
+    </a>
+    @if (authService.isAuthenticated()) {
+      <a routerLink="/collection" routerLinkActive="active">
+        My Collection
+      </a>
+    }
+  </div>
+
+  <div class="nav-auth">
+    @if (authService.isLoading()) {
+      <span class="loading-text">Loading...</span>
+    } @else if (authService.isAuthenticated()) {
+      <div class="user-info">
+        @if (authService.userProfile()?.picture) {
+          <img
+            [src]="authService.userProfile()?.picture"
+            [alt]="authService.userProfile()?.name"
+            class="user-avatar"
+          />
+        }
+        <span class="user-name">{{ authService.userProfile()?.name }}</span>
+        <button (click)="logout()" class="btn btn-logout">Logout</button>
+      </div>
+    } @else {
+      <button (click)="login()" class="btn btn-login">
+        Sign in with Google
+      </button>
+    }
+  </div>
+</nav>

@@ -1,0 +1,2965 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /abstractImages:
+    get:
+      tags:
+      - abstract-image-entity-controller
+      description: get-abstractimage
+      operationId: getCollectionResource-abstractimage-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelAbstractImage"
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelAbstractImage"
+            text/uri-list:
+              schema:
+                type: string
+    post:
+      tags:
+      - abstract-image-entity-controller
+      description: create-abstractimage
+      operationId: postCollectionResource-abstractimage-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AbstractImageRequestBody"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+  /abstractImages/{id}:
+    get:
+      tags:
+      - abstract-image-entity-controller
+      description: get-abstractimage
+      operationId: getItemResource-abstractimage-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - abstract-image-entity-controller
+      description: update-abstractimage
+      operationId: putItemResource-abstractimage-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AbstractImageRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - abstract-image-entity-controller
+      description: delete-abstractimage
+      operationId: deleteItemResource-abstractimage-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - abstract-image-entity-controller
+      description: patch-abstractimage
+      operationId: patchItemResource-abstractimage-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AbstractImageRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "204":
+          description: No Content
+  /capItems:
+    get:
+      tags:
+      - cap-item-entity-controller
+      description: get-capitem
+      operationId: getCollectionResource-capitem-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelCapItem"
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelCapItem"
+            text/uri-list:
+              schema:
+                type: string
+    post:
+      tags:
+      - cap-item-entity-controller
+      description: create-capitem
+      operationId: postCollectionResource-capitem-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapItemRequestBody"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelCapItem"
+  /capItems/search/countAllCapItems:
+    get:
+      tags:
+      - cap-item-search-controller
+      operationId: executeSearch-capitem-get
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: integer
+                format: int64
+        "404":
+          description: Not Found
+  /capItems/search/findByColorsValues:
+    get:
+      tags:
+      - cap-item-search-controller
+      operationId: executeSearch-capitem-get_1
+      parameters:
+      - name: hueMoreThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: huePivotLessThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: huePivotMoreThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: hueLessThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: saturationMoreThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: saturationPivotLessThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: saturationPivotMoreThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: saturationLessThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: brightnessMoreThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: brightnessPivotLessThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: brightnessPivotMoreThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: brightnessLessThan
+        in: query
+        schema:
+          type: number
+          format: float
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelCapItem"
+        "404":
+          description: Not Found
+  /capItems/search/findByNameContainingOrDescriptionContainingAllIgnoreCase:
+    get:
+      tags:
+      - cap-item-search-controller
+      operationId: executeSearch-capitem-get_2
+      parameters:
+      - name: name
+        in: query
+        schema:
+          type: string
+      - name: desc
+        in: query
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelCapItem"
+        "404":
+          description: Not Found
+  /capItems/{id}:
+    get:
+      tags:
+      - cap-item-entity-controller
+      description: get-capitem
+      operationId: getItemResource-capitem-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelCapItem"
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - cap-item-entity-controller
+      description: update-capitem
+      operationId: putItemResource-capitem-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapItemRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelCapItem"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelCapItem"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - cap-item-entity-controller
+      description: delete-capitem
+      operationId: deleteItemResource-capitem-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - cap-item-entity-controller
+      description: patch-capitem
+      operationId: patchItemResource-capitem-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapItemRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelCapItem"
+        "204":
+          description: No Content
+  /capItems/{id}/image:
+    get:
+      tags:
+      - cap-item-property-reference-controller
+      description: get-abstractimage-by-capitem-Id
+      operationId: followPropertyReference-capitem-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+            text/uri-list:
+              schema:
+                type: string
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - cap-item-property-reference-controller
+      description: update-abstractimage-by-capitem-Id
+      operationId: createPropertyReference-capitem-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          text/uri-list:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - cap-item-property-reference-controller
+      description: delete-abstractimage-by-capitem-Id
+      operationId: deletePropertyReference-capitem-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - cap-item-property-reference-controller
+      description: patch-abstractimage-by-capitem-Id
+      operationId: createPropertyReference-capitem-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          text/uri-list:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "204":
+          description: No Content
+  /capItems/{id}/image/{propertyId}:
+    get:
+      tags:
+      - cap-item-property-reference-controller
+      description: get-abstractimage-by-capitem-Id
+      operationId: followPropertyReference-capitem-get_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: propertyId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "404":
+          description: Not Found
+    delete:
+      tags:
+      - cap-item-property-reference-controller
+      description: delete-abstractimage-by-capitem-Id
+      operationId: deletePropertyReferenceId-capitem-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: propertyId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+  /comparisonRanges:
+    get:
+      tags:
+      - comparison-range-entity-controller
+      description: get-comparisonrange
+      operationId: getCollectionResource-comparisonrange-get
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelComparisonRange"
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelComparisonRange"
+            text/uri-list:
+              schema:
+                type: string
+    post:
+      tags:
+      - comparison-range-entity-controller
+      description: create-comparisonrange
+      operationId: postCollectionResource-comparisonrange-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComparisonRangeRequestBody"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+  /comparisonRanges/search/findComparisonRangeByComparisonMethod:
+    get:
+      tags:
+      - comparison-range-search-controller
+      operationId: executeSearch-comparisonrange-get
+      parameters:
+      - name: method
+        in: query
+        schema:
+          type: string
+          enum:
+          - CORRELATION
+          - CHI_SQUARE
+          - INTERSECTION
+          - BHATTACHARYYA
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        "404":
+          description: Not Found
+  /comparisonRanges/{id}:
+    get:
+      tags:
+      - comparison-range-entity-controller
+      description: get-comparisonrange
+      operationId: getItemResource-comparisonrange-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - comparison-range-entity-controller
+      description: update-comparisonrange
+      operationId: putItemResource-comparisonrange-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComparisonRangeRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - comparison-range-entity-controller
+      description: delete-comparisonrange
+      operationId: deleteItemResource-comparisonrange-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - comparison-range-entity-controller
+      description: patch-comparisonrange
+      operationId: patchItemResource-comparisonrange-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComparisonRangeRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        "204":
+          description: No Content
+  /pictureItems:
+    get:
+      tags:
+      - picture-item-entity-controller
+      description: get-pictureitem
+      operationId: getCollectionResource-pictureitem-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelPictureItem"
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelPictureItem"
+            text/uri-list:
+              schema:
+                type: string
+    post:
+      tags:
+      - picture-item-entity-controller
+      description: create-pictureitem
+      operationId: postCollectionResource-pictureitem-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PictureItemRequestBody"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+  /pictureItems/{id}:
+    get:
+      tags:
+      - picture-item-entity-controller
+      description: get-pictureitem
+      operationId: getItemResource-pictureitem-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - picture-item-entity-controller
+      description: update-pictureitem
+      operationId: putItemResource-pictureitem-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PictureItemRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - picture-item-entity-controller
+      description: delete-pictureitem
+      operationId: deleteItemResource-pictureitem-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - picture-item-entity-controller
+      description: patch-pictureitem
+      operationId: patchItemResource-pictureitem-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PictureItemRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+        "204":
+          description: No Content
+  /pictureItems/{id}/image:
+    get:
+      tags:
+      - picture-item-property-reference-controller
+      description: get-abstractimage-by-pictureitem-Id
+      operationId: followPropertyReference-pictureitem-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+            text/uri-list:
+              schema:
+                type: string
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - picture-item-property-reference-controller
+      description: update-abstractimage-by-pictureitem-Id
+      operationId: createPropertyReference-pictureitem-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          text/uri-list:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - picture-item-property-reference-controller
+      description: delete-abstractimage-by-pictureitem-Id
+      operationId: deletePropertyReference-pictureitem-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - picture-item-property-reference-controller
+      description: patch-abstractimage-by-pictureitem-Id
+      operationId: createPropertyReference-pictureitem-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          application/x-spring-data-compact+json:
+            schema:
+              $ref: "#/components/schemas/CollectionModelObject"
+          text/uri-list:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "204":
+          description: No Content
+  /pictureItems/{id}/image/{propertyId}:
+    get:
+      tags:
+      - picture-item-property-reference-controller
+      description: get-abstractimage-by-pictureitem-Id
+      operationId: followPropertyReference-pictureitem-get_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: propertyId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        "404":
+          description: Not Found
+    delete:
+      tags:
+      - picture-item-property-reference-controller
+      description: delete-abstractimage-by-pictureitem-Id
+      operationId: deletePropertyReferenceId-pictureitem-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: propertyId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+  /profile:
+    get:
+      tags:
+      - profile-controller
+      operationId: listAllFormsOfMetadata
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/RepresentationModelObject"
+  /profile/abstractImages:
+    get:
+      tags:
+      - profile-controller
+      operationId: descriptor
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/JsonSchema"
+  /profile/capItems:
+    get:
+      tags:
+      - profile-controller
+      operationId: descriptor_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/JsonSchema"
+  /profile/comparisonRanges:
+    get:
+      tags:
+      - profile-controller
+      operationId: descriptor_2
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/JsonSchema"
+  /profile/pictureItems:
+    get:
+      tags:
+      - profile-controller
+      operationId: descriptor_3
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/JsonSchema"
+  /profile/rectangleOpenCVGoogleImages:
+    get:
+      tags:
+      - profile-controller
+      operationId: descriptor_4
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/JsonSchema"
+  /profile/roundOpenCVGoogleImages:
+    get:
+      tags:
+      - profile-controller
+      operationId: descriptor_5
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+            application/alps+json:
+              schema:
+                type: string
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/JsonSchema"
+  /rectangleOpenCVGoogleImages:
+    get:
+      tags:
+      - rectangle-open-cv-google-image-entity-controller
+      description: get-rectangleopencvgoogleimage
+      operationId: getCollectionResource-rectangleopencvgoogleimage-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelRectangleOpenCVGoogleImage"
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelRectangleOpenCVGoogleImage"
+            text/uri-list:
+              schema:
+                type: string
+    post:
+      tags:
+      - rectangle-open-cv-google-image-entity-controller
+      description: create-rectangleopencvgoogleimage
+      operationId: postCollectionResource-rectangleopencvgoogleimage-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RectangleOpenCVGoogleImageRequestBody"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRectangleOpenCVGoogleImage"
+  /rectangleOpenCVGoogleImages/{id}:
+    get:
+      tags:
+      - rectangle-open-cv-google-image-entity-controller
+      description: get-rectangleopencvgoogleimage
+      operationId: getItemResource-rectangleopencvgoogleimage-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRectangleOpenCVGoogleImage"
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - rectangle-open-cv-google-image-entity-controller
+      description: update-rectangleopencvgoogleimage
+      operationId: putItemResource-rectangleopencvgoogleimage-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RectangleOpenCVGoogleImageRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRectangleOpenCVGoogleImage"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRectangleOpenCVGoogleImage"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - rectangle-open-cv-google-image-entity-controller
+      description: delete-rectangleopencvgoogleimage
+      operationId: deleteItemResource-rectangleopencvgoogleimage-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - rectangle-open-cv-google-image-entity-controller
+      description: patch-rectangleopencvgoogleimage
+      operationId: patchItemResource-rectangleopencvgoogleimage-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RectangleOpenCVGoogleImageRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRectangleOpenCVGoogleImage"
+        "204":
+          description: No Content
+  /roundOpenCVGoogleImages:
+    get:
+      tags:
+      - round-open-cv-google-image-entity-controller
+      description: get-roundopencvgoogleimage
+      operationId: getCollectionResource-roundopencvgoogleimage-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelRoundOpenCVGoogleImage"
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: "#/components/schemas/PagedModelEntityModelRoundOpenCVGoogleImage"
+            text/uri-list:
+              schema:
+                type: string
+    post:
+      tags:
+      - round-open-cv-google-image-entity-controller
+      description: create-roundopencvgoogleimage
+      operationId: postCollectionResource-roundopencvgoogleimage-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoundOpenCVGoogleImageRequestBody"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
+  /roundOpenCVGoogleImages/{id}:
+    get:
+      tags:
+      - round-open-cv-google-image-entity-controller
+      description: get-roundopencvgoogleimage
+      operationId: getItemResource-roundopencvgoogleimage-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
+        "404":
+          description: Not Found
+    put:
+      tags:
+      - round-open-cv-google-image-entity-controller
+      description: update-roundopencvgoogleimage
+      operationId: putItemResource-roundopencvgoogleimage-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoundOpenCVGoogleImageRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
+        "201":
+          description: Created
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - round-open-cv-google-image-entity-controller
+      description: delete-roundopencvgoogleimage
+      operationId: deleteItemResource-roundopencvgoogleimage-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+    patch:
+      tags:
+      - round-open-cv-google-image-entity-controller
+      description: patch-roundopencvgoogleimage
+      operationId: patchItemResource-roundopencvgoogleimage-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoundOpenCVGoogleImageRequestBody"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
+        "204":
+          description: No Content
+  /caps/{id}:
+    get:
+      tags:
+      - bottle-cap-controller
+      operationId: getBottleCap
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/BottleCapDto"
+    put:
+      tags:
+      - bottle-cap-controller
+      operationId: updateCap
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: newName
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: newDesc
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/BottleCapDto"
+    delete:
+      tags:
+      - bottle-cap-controller
+      operationId: deleteBottleCap
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: string
+  /api/collections/{collectionName}/items/{id}:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionItemResponse"
+    put:
+      tags:
+      - collection-item-controller
+      operationId: updateItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCollectionItem"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionItemResponse"
+    delete:
+      tags:
+      - collection-item-controller
+      operationId: deleteItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/collections/{collectionName}/items/{id}/image:
+    put:
+      tags:
+      - collection-item-controller
+      operationId: updateImage
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionItemResponse"
+  /admin/update-google-drive-data:
+    put:
+      tags:
+      - maintenance-controller
+      operationId: updateCapLocations
+      responses:
+        "200":
+          description: OK
+  /whatCapAreYou:
+    post:
+      tags:
+      - bottle-cap-controller
+      operationId: whatCapAreYou
+      parameters:
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: file
+        in: query
+        required: true
+        schema:
+          type: string
+          format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/BottleCapDto"
+  /validateCap:
+    post:
+      tags:
+      - bottle-cap-controller
+      operationId: validateBottleCap
+      parameters:
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: file
+        in: query
+        required: true
+        schema:
+          type: string
+          format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/BottleCapValidationResponseDto"
+  /caps:
+    get:
+      tags:
+      - bottle-cap-controller
+      operationId: getBottleCaps
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleCapDto"
+    post:
+      tags:
+      - bottle-cap-controller
+      operationId: addBottleCap
+      parameters:
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: desc
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: integer
+                format: int64
+  /api/collections/{collectionName}/items:
+    post:
+      tags:
+      - collection-item-controller
+      operationId: createItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                request:
+                  $ref: "#/components/schemas/CreateCollectionItemRequest"
+              required:
+              - file
+              - request
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/{id}/image/upload:
+    post:
+      tags:
+      - collection-item-controller
+      operationId: uploadImage
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/{id}/acknowledge:
+    post:
+      tags:
+      - collection-item-controller
+      operationId: acknowledgeItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcknowledgeCapRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/validate:
+    post:
+      tags:
+      - collection-item-controller
+      operationId: validateItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/CheckCapResponse"
+  /admin/upload-file-to-google-drive:
+    post:
+      tags:
+      - maintenance-controller
+      operationId: uploadFileToDrive
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: string
+  /admin/run-initial-data-import:
+    post:
+      tags:
+      - maintenance-controller
+      operationId: prepareData
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: string
+  /admin/run-initial-caps-import:
+    post:
+      tags:
+      - maintenance-controller
+      operationId: uploadCapsFromLocalStorage
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: string
+  /admin/prepare-open-cv-data:
+    post:
+      tags:
+      - maintenance-controller
+      operationId: prepareOpenCvData
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ComparisonRangeDto"
+  /links:
+    get:
+      tags:
+      - bottle-cap-controller
+      operationId: getBottleCapsLinks
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CapPictureDto"
+  /links-page/:
+    get:
+      tags:
+      - bottle-cap-controller
+      operationId: loadBottleCapsPage
+      parameters:
+      - name: pageNo
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          default: id
+      - name: sortDir
+        in: query
+        required: false
+        schema:
+          type: string
+          default: asc
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CapPictureDto"
+  /caps/total:
+    get:
+      tags:
+      - bottle-cap-controller
+      operationId: getCapAmount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: integer
+                format: int64
+  /caps-page:
+    get:
+      tags:
+      - bottle-cap-controller
+      operationId: getBottleCapsPage
+      parameters:
+      - name: pageNo
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          default: id
+      - name: sortDir
+        in: query
+        required: false
+        schema:
+          type: string
+          default: asc
+      - name: searchText
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ""
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleCapDto"
+  /api/collections:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getUserCollections
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/collections/{collectionName}/items/search:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: searchItems
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/paginated:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getItemsPaginated
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/count:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getItemCount
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: integer
+                format: int64
+  /api/collections/{collectionName}/items/by-user:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getItemsByUser
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/by-tag:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getItemsByTag
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionItemResponse"
+  /api/collections/{collectionName}/items/{id}/discard:
+    delete:
+      tags:
+      - collection-item-controller
+      operationId: discardTemporaryItem
+      parameters:
+      - name: collectionName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    AbstractJsonSchemaPropertyObject:
+      type: object
+      properties:
+        title:
+          type: string
+        readOnly:
+          type: boolean
+    Item:
+      type: object
+      properties:
+        type:
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AbstractJsonSchemaPropertyObject"
+        requiredProperties:
+          type: array
+          items:
+            type: string
+    JsonSchema:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AbstractJsonSchemaPropertyObject"
+        requiredProperties:
+          type: array
+          items:
+            type: string
+        definitions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Item"
+        type:
+          type: string
+        $schema:
+          type: string
+    RepresentationModelObject:
+      type: object
+      properties:
+        _links:
+          $ref: "#/components/schemas/Links"
+    AbstractImageProvider:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        imageProviderId:
+          type: string
+        fileName:
+          type: string
+        updateDateTime:
+          type: string
+          format: date-time
+    AbstractSignature:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+    EntityModelRoundOpenCVGoogleImage:
+      type: object
+      properties:
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+        _links:
+          $ref: "#/components/schemas/Links"
+    PageMetadata:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    PagedModelEntityModelRoundOpenCVGoogleImage:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            roundOpenCVGoogleImages:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
+        _links:
+          $ref: "#/components/schemas/Links"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+    EntityModelComparisonRange:
+      type: object
+      properties:
+        methodName:
+          type: string
+          enum:
+          - CORRELATION
+          - CHI_SQUARE
+          - INTERSECTION
+          - BHATTACHARYYA
+        minValue:
+          type: number
+          format: double
+        maxValue:
+          type: number
+          format: double
+        _links:
+          $ref: "#/components/schemas/Links"
+    CollectionModelEntityModelComparisonRange:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            comparisonRanges:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        _links:
+          $ref: "#/components/schemas/Links"
+    EntityModelAbstractImage:
+      type: object
+      properties:
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+        _links:
+          $ref: "#/components/schemas/Links"
+    PagedModelEntityModelAbstractImage:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            abstractImages:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelAbstractImage"
+        _links:
+          $ref: "#/components/schemas/Links"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+    EntityModelCapItem:
+      type: object
+      properties:
+        createDateTime:
+          type: string
+          format: date-time
+        updateDateTime:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    PagedModelEntityModelCapItem:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            capItems:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelCapItem"
+        _links:
+          $ref: "#/components/schemas/Links"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+    CollectionModelObject:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            objects:
+              type: array
+              items: {}
+        _links:
+          $ref: "#/components/schemas/Links"
+    EntityModelPictureItem:
+      type: object
+      properties:
+        createDateTime:
+          type: string
+          format: date-time
+        updateDateTime:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    PagedModelEntityModelPictureItem:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            pictureItems:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+        _links:
+          $ref: "#/components/schemas/Links"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+    EntityModelRectangleOpenCVGoogleImage:
+      type: object
+      properties:
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+        _links:
+          $ref: "#/components/schemas/Links"
+    PagedModelEntityModelRectangleOpenCVGoogleImage:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            rectangleOpenCVGoogleImages:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelRectangleOpenCVGoogleImage"
+        _links:
+          $ref: "#/components/schemas/Links"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+    AbstractImageRequestBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+    CapItemRequestBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createDateTime:
+          type: string
+          format: date-time
+        updateDateTime:
+          type: string
+          format: date-time
+        image:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    ComparisonRangeRequestBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        methodName:
+          type: string
+          enum:
+          - CORRELATION
+          - CHI_SQUARE
+          - INTERSECTION
+          - BHATTACHARYYA
+        minValue:
+          type: number
+          format: double
+        maxValue:
+          type: number
+          format: double
+    PictureItemRequestBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createDateTime:
+          type: string
+          format: date-time
+        updateDateTime:
+          type: string
+          format: date-time
+        image:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    RectangleOpenCVGoogleImageRequestBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+    RoundOpenCVGoogleImageRequestBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+    BottleCapDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        creationDate:
+          type: string
+    UpdateCollectionItem:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        customTags:
+          type: object
+          additionalProperties:
+            type: string
+    CollectionItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        image:
+          $ref: "#/components/schemas/FirestoreImageDto"
+        visionMetadata:
+          $ref: "#/components/schemas/FirestoreVisionMetadataDto"
+        tags:
+          type: array
+          items:
+            type: string
+        customTags:
+          type: object
+          additionalProperties:
+            type: string
+        userId:
+          type: string
+        temporary:
+          type: boolean
+        collectionType:
+          type: string
+    FirestoreHSBColorDto:
+      type: object
+      properties:
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+    FirestoreImageDto:
+      type: object
+      properties:
+        objectName:
+          type: string
+        contentType:
+          type: string
+        sizeBytes:
+          type: integer
+          format: int64
+        md5Hash:
+          type: string
+        width:
+          type: integer
+          format: int32
+        height:
+          type: integer
+          format: int32
+        uploadedAt:
+          type: string
+          format: date-time
+        hsbColor:
+          $ref: "#/components/schemas/FirestoreHSBColorDto"
+        signedUrl:
+          type: string
+    FirestoreVisionMetadataDto:
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            $ref: "#/components/schemas/VisionLabelDto"
+        dominantColors:
+          type: array
+          items:
+            $ref: "#/components/schemas/VisionColorDto"
+        textAnnotation:
+          $ref: "#/components/schemas/VisionTextDto"
+        logoAnnotation:
+          $ref: "#/components/schemas/VisionLogoDto"
+        overallConfidence:
+          type: number
+          format: double
+        analyzedAt:
+          type: string
+          format: date-time
+    VisionColorDto:
+      type: object
+      properties:
+        red:
+          type: integer
+          format: int32
+        green:
+          type: integer
+          format: int32
+        blue:
+          type: integer
+          format: int32
+        score:
+          type: number
+          format: double
+        pixelFraction:
+          type: number
+          format: double
+    VisionLabelDto:
+      type: object
+      properties:
+        description:
+          type: string
+        score:
+          type: number
+          format: double
+        topicality:
+          type: number
+          format: double
+    VisionLogoDto:
+      type: object
+      properties:
+        description:
+          type: string
+        score:
+          type: number
+          format: double
+    VisionTextDto:
+      type: object
+      properties:
+        fullText:
+          type: string
+        words:
+          type: array
+          items:
+            type: string
+        language:
+          type: string
+    BottleCapValidationResponseDto:
+      type: object
+      properties:
+        similarCapsIDs:
+          type: array
+          items:
+            type: integer
+            format: int64
+        similarCapsURLs:
+          type: array
+          items:
+            type: string
+        similarityDistribution:
+          type: array
+          items:
+            type: integer
+            format: int32
+        duplicate:
+          type: boolean
+    CreateCollectionItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        customTags:
+          type: object
+          additionalProperties:
+            type: string
+        userId:
+          type: string
+      required:
+      - name
+    AcknowledgeCapRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    CheckCapResponse:
+      type: object
+      properties:
+        temporaryCapId:
+          type: string
+        similarCaps:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarCapDto"
+        hasSimilarCaps:
+          type: boolean
+    SimilarCapDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        imageUrl:
+          type: string
+        similarityScore:
+          type: number
+          format: double
+    ComparisonRangeDto:
+      type: object
+      properties:
+        methodName:
+          type: string
+          enum:
+          - CORRELATION
+          - CHI_SQUARE
+          - INTERSECTION
+          - BHATTACHARYYA
+        minValue:
+          type: number
+          format: double
+        maxValue:
+          type: number
+          format: double
+    CapPictureDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean
+    Links:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/Link"

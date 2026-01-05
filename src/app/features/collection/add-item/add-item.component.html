@@ -1,0 +1,267 @@
+<div class="add-item-container">
+  <header class="add-item-header">
+    <h1>Add New Item</h1>
+    <button class="btn btn-cancel" (click)="cancel()">Cancel</button>
+  </header>
+
+  @if (error()) {
+    <div class="error-container">
+      <p class="error-message">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Step 1: Collection Selection -->
+  @if (currentStep() === 'collection-selection') {
+    <div class="collection-selection">
+      <h2>Select Collection</h2>
+
+      @if (isLoadingCollections()) {
+        <div class="loading-collections">
+          <div class="spinner"></div>
+          <p>Loading collections...</p>
+        </div>
+      } @else {
+        @if (collections().length > 0 && !isCreatingNew()) {
+          <div class="collections-list">
+            @for (collection of collections(); track collection) {
+              <button
+                class="collection-btn"
+                [class.selected]="selectedCollection() === collection"
+                (click)="selectCollection(collection)">
+                {{ collection }}
+              </button>
+            }
+          </div>
+        }
+
+        <div class="create-new-section">
+          @if (!isCreatingNew()) {
+            <button class="btn btn-link" (click)="toggleCreateNew()">
+              + Create new collection
+            </button>
+          } @else {
+            <div class="new-collection-form">
+              <label for="newCollectionName">New collection name</label>
+              <input
+                type="text"
+                id="newCollectionName"
+                [ngModel]="newCollectionName()"
+                (ngModelChange)="newCollectionName.set($event)"
+                name="newCollectionName"
+                placeholder="Enter collection name" />
+              @if (collections().length > 0) {
+                <button class="btn btn-link" (click)="toggleCreateNew()">
+                  Select existing collection
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="collection-actions">
+          <button
+            class="btn btn-primary"
+            (click)="confirmCollection()"
+            [disabled]="(!selectedCollection() && !isCreatingNew()) || (isCreatingNew() && !newCollectionName().trim())">
+            Continue
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Step 2: Source Selection -->
+  @if (currentStep() === 'source-selection') {
+    <div class="source-selection">
+      <div class="selected-collection-badge">
+        Collection: <strong>{{ selectedCollection() }}</strong>
+      </div>
+      <h2>Choose Image Source</h2>
+      <div class="source-options">
+        <button class="source-btn" (click)="selectCamera()">
+          <span class="source-icon">📷</span>
+          <span>Take Picture</span>
+        </button>
+        <button class="source-btn" (click)="selectUpload()">
+          <span class="source-icon">📁</span>
+          <span>Upload Image</span>
+        </button>
+      </div>
+      <div class="source-actions">
+        <button class="btn btn-secondary" (click)="goBackToCollectionSelection()">
+          Back
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Camera Capture -->
+  @if (currentStep() === 'capture') {
+    <div class="camera-container">
+      <video
+        #videoElement
+        autoplay
+        playsinline
+        class="camera-preview">
+      </video>
+      <canvas #canvasElement class="hidden-canvas"></canvas>
+
+      <div class="camera-controls">
+        <button class="btn btn-secondary" (click)="retakePicture()">
+          Back
+        </button>
+        <button
+          class="btn btn-capture"
+          (click)="capturePhoto()"
+          [disabled]="!isCameraActive()">
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 4: Crop Image -->
+  @if (currentStep() === 'crop') {
+    <div class="crop-container">
+      <div class="crop-controls">
+        <button
+          class="btn btn-shape"
+          [class.active]="cropShape() === 'rectangle'"
+          (click)="cropShape.set('rectangle')">
+          Rectangle
+        </button>
+        <button
+          class="btn btn-shape"
+          [class.active]="cropShape() === 'circle'"
+          (click)="cropShape.set('circle')">
+          Circle
+        </button>
+      </div>
+
+      <div class="cropper-wrapper">
+        <image-cropper
+          [imageBase64]="imageSource()"
+          [maintainAspectRatio]="false"
+          [aspectRatio]="1"
+          [resizeToWidth]="800"
+          format="jpeg"
+          [roundCropper]="cropShape() === 'circle'"
+          (imageCropped)="onImageCropped($event)"
+          (imageLoaded)="onImageLoaded($event)"
+          (cropperReady)="onCropperReady()"
+          (loadImageFailed)="onLoadImageFailed()">
+        </image-cropper>
+      </div>
+
+      <div class="crop-actions">
+        <button class="btn btn-secondary" (click)="retakePicture()">
+          Retake
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="confirmCrop()"
+          [disabled]="!croppedImage()">
+          Continue
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 5: Form -->
+  @if (currentStep() === 'form') {
+    <div class="form-container">
+      <div class="selected-collection-badge">
+        Collection: <strong>{{ selectedCollection() }}</strong>
+      </div>
+
+      @if (croppedImage(); as blob) {
+        <div class="image-preview">
+          <img
+            [src]="blob | blobToUrl"
+            alt="Cropped preview"
+            [class.circle]="cropShape() === 'circle'" />
+        </div>
+      }
+
+      <form (ngSubmit)="submitItem()">
+        <div class="form-group">
+          <label for="itemName">Name *</label>
+          <input
+            type="text"
+            id="itemName"
+            [ngModel]="itemName()"
+            (ngModelChange)="itemName.set($event)"
+            name="itemName"
+            placeholder="Enter item name"
+            required />
+        </div>
+
+        <!-- Custom Tags Section -->
+        <div class="custom-tags-section">
+          <label>Custom Tags</label>
+
+          @if (customTags().length > 0) {
+            <div class="custom-tags-list">
+              @for (tag of customTags(); track tag.key) {
+                <div class="custom-tag-item">
+                  <span class="tag-key">{{ tag.key }}</span>
+                  <span class="tag-separator">:</span>
+                  <span class="tag-value">{{ tag.value }}</span>
+                  <button
+                    type="button"
+                    class="tag-remove-btn"
+                    (click)="removeCustomTag(tag.key)"
+                    title="Remove tag">
+                    &times;
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="add-tag-form">
+            <input
+              type="text"
+              [ngModel]="newTagKey()"
+              (ngModelChange)="newTagKey.set($event)"
+              name="newTagKey"
+              placeholder="Key"
+              class="tag-input tag-key-input" />
+            <input
+              type="text"
+              [ngModel]="newTagValue()"
+              (ngModelChange)="newTagValue.set($event)"
+              name="newTagValue"
+              placeholder="Value"
+              class="tag-input tag-value-input" />
+            <button
+              type="button"
+              class="btn btn-add-tag"
+              (click)="addCustomTag()"
+              [disabled]="!newTagKey().trim() || !newTagValue().trim()">
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="currentStep.set('crop')">
+            Back
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isSubmitting() || !itemName().trim()">
+            @if (isSubmitting()) {
+              Adding...
+            } @else {
+              Add to Collection
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
