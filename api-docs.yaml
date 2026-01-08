@@ -1614,13 +1614,13 @@ paths:
             application/vnd.hal+json:
               schema:
                 type: string
-  /api/collections/{collectionName}/items/{id}:
+  /api/collections/{collectionKey}/items/{id}:
     get:
       tags:
       - collection-item-controller
       operationId: getItem
       parameters:
-      - name: collectionName
+      - name: collectionKey
         in: path
         required: true
         schema:
@@ -1642,7 +1642,7 @@ paths:
       - collection-item-controller
       operationId: updateItem
       parameters:
-      - name: collectionName
+      - name: collectionKey
         in: path
         required: true
         schema:
@@ -1670,7 +1670,7 @@ paths:
       - collection-item-controller
       operationId: deleteItem
       parameters:
-      - name: collectionName
+      - name: collectionKey
         in: path
         required: true
         schema:
@@ -1683,13 +1683,13 @@ paths:
       responses:
         "200":
           description: OK
-  /api/collections/{collectionName}/items/{id}/image:
+  /api/collections/{collectionKey}/items/{id}/image:
     put:
       tags:
       - collection-item-controller
       operationId: updateImage
       parameters:
-      - name: collectionName
+      - name: collectionKey
         in: path
         required: true
         schema:
@@ -1821,13 +1821,40 @@ paths:
               schema:
                 type: integer
                 format: int64
-  /api/collections/{collectionName}/items:
+  /api/collections/{collectionKey}/items:
+    get:
+      tags:
+      - collection-item-controller
+      operationId: getItems
+      parameters:
+      - name: collectionKey
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/vnd.hal+json:
+              schema:
+                $ref: "#/components/schemas/PageCollectionItemSummary"
     post:
       tags:
       - collection-item-controller
       operationId: createItem
       parameters:
-      - name: collectionName
+      - name: collectionKey
         in: path
         required: true
         schema:
@@ -1853,75 +1880,13 @@ paths:
             application/vnd.hal+json:
               schema:
                 $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/{id}/image/upload:
-    post:
-      tags:
-      - collection-item-controller
-      operationId: uploadImage
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-              required:
-              - file
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/{id}/acknowledge:
-    post:
-      tags:
-      - collection-item-controller
-      operationId: acknowledgeItem
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AcknowledgeCapRequest"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/validate:
+  /api/collections/{collectionKey}/items/validate:
     post:
       tags:
       - collection-item-controller
       operationId: validateItem
       parameters:
-      - name: collectionName
+      - name: collectionKey
         in: path
         required: true
         schema:
@@ -1943,7 +1908,7 @@ paths:
           content:
             application/vnd.hal+json:
               schema:
-                $ref: "#/components/schemas/CheckCapResponse"
+                $ref: "#/components/schemas/ValidateItemResponse"
   /admin/upload-file-to-google-drive:
     post:
       tags:
@@ -2133,149 +2098,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
-  /api/collections/{collectionName}/items/search:
-    get:
-      tags:
-      - collection-item-controller
-      operationId: searchItems
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: query
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/paginated:
-    get:
-      tags:
-      - collection-item-controller
-      operationId: getItemsPaginated
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 10
-      - name: offset
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 0
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/count:
-    get:
-      tags:
-      - collection-item-controller
-      operationId: getItemCount
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                type: integer
-                format: int64
-  /api/collections/{collectionName}/items/by-user:
-    get:
-      tags:
-      - collection-item-controller
-      operationId: getItemsByUser
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/by-tag:
-    get:
-      tags:
-      - collection-item-controller
-      operationId: getItemsByTag
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: tag
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/vnd.hal+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CollectionItemResponse"
-  /api/collections/{collectionName}/items/{id}/discard:
-    delete:
-      tags:
-      - collection-item-controller
-      operationId: discardTemporaryItem
-      parameters:
-      - name: collectionName
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
+                  $ref: "#/components/schemas/UserCollectionResponse"
 components:
   schemas:
     AbstractJsonSchemaPropertyObject:
@@ -2345,7 +2168,7 @@ components:
         id:
           type: integer
           format: int64
-    EntityModelRoundOpenCVGoogleImage:
+    EntityModelAbstractImage:
       type: object
       properties:
         url:
@@ -2380,70 +2203,6 @@ components:
         number:
           type: integer
           format: int64
-    PagedModelEntityModelRoundOpenCVGoogleImage:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            roundOpenCVGoogleImages:
-              type: array
-              items:
-                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
-        _links:
-          $ref: "#/components/schemas/Links"
-        page:
-          $ref: "#/components/schemas/PageMetadata"
-    EntityModelComparisonRange:
-      type: object
-      properties:
-        methodName:
-          type: string
-          enum:
-          - CORRELATION
-          - CHI_SQUARE
-          - INTERSECTION
-          - BHATTACHARYYA
-        minValue:
-          type: number
-          format: double
-        maxValue:
-          type: number
-          format: double
-        _links:
-          $ref: "#/components/schemas/Links"
-    CollectionModelEntityModelComparisonRange:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            comparisonRanges:
-              type: array
-              items:
-                $ref: "#/components/schemas/EntityModelComparisonRange"
-        _links:
-          $ref: "#/components/schemas/Links"
-    EntityModelAbstractImage:
-      type: object
-      properties:
-        url:
-          type: string
-        hue:
-          type: number
-          format: float
-        saturation:
-          type: number
-          format: float
-        brightness:
-          type: number
-          format: float
-        signature:
-          $ref: "#/components/schemas/AbstractSignature"
-        provider:
-          $ref: "#/components/schemas/AbstractImageProvider"
-        _links:
-          $ref: "#/components/schemas/Links"
     PagedModelEntityModelAbstractImage:
       type: object
       properties:
@@ -2458,6 +2217,46 @@ components:
           $ref: "#/components/schemas/Links"
         page:
           $ref: "#/components/schemas/PageMetadata"
+    EntityModelPictureItem:
+      type: object
+      properties:
+        createDateTime:
+          type: string
+          format: date-time
+        updateDateTime:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    PagedModelEntityModelPictureItem:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            pictureItems:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelPictureItem"
+        _links:
+          $ref: "#/components/schemas/Links"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
+    CollectionModelObject:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            objects:
+              type: array
+              items: {}
+        _links:
+          $ref: "#/components/schemas/Links"
     EntityModelCapItem:
       type: object
       properties:
@@ -2487,42 +2286,36 @@ components:
           $ref: "#/components/schemas/Links"
         page:
           $ref: "#/components/schemas/PageMetadata"
-    CollectionModelObject:
+    EntityModelRoundOpenCVGoogleImage:
+      type: object
+      properties:
+        url:
+          type: string
+        hue:
+          type: number
+          format: float
+        saturation:
+          type: number
+          format: float
+        brightness:
+          type: number
+          format: float
+        signature:
+          $ref: "#/components/schemas/AbstractSignature"
+        provider:
+          $ref: "#/components/schemas/AbstractImageProvider"
+        _links:
+          $ref: "#/components/schemas/Links"
+    PagedModelEntityModelRoundOpenCVGoogleImage:
       type: object
       properties:
         _embedded:
           type: object
           properties:
-            objects:
-              type: array
-              items: {}
-        _links:
-          $ref: "#/components/schemas/Links"
-    EntityModelPictureItem:
-      type: object
-      properties:
-        createDateTime:
-          type: string
-          format: date-time
-        updateDateTime:
-          type: string
-          format: date-time
-        name:
-          type: string
-        description:
-          type: string
-        _links:
-          $ref: "#/components/schemas/Links"
-    PagedModelEntityModelPictureItem:
-      type: object
-      properties:
-        _embedded:
-          type: object
-          properties:
-            pictureItems:
+            roundOpenCVGoogleImages:
               type: array
               items:
-                $ref: "#/components/schemas/EntityModelPictureItem"
+                $ref: "#/components/schemas/EntityModelRoundOpenCVGoogleImage"
         _links:
           $ref: "#/components/schemas/Links"
         page:
@@ -2561,6 +2354,36 @@ components:
           $ref: "#/components/schemas/Links"
         page:
           $ref: "#/components/schemas/PageMetadata"
+    CollectionModelEntityModelComparisonRange:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            comparisonRanges:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelComparisonRange"
+        _links:
+          $ref: "#/components/schemas/Links"
+    EntityModelComparisonRange:
+      type: object
+      properties:
+        methodName:
+          type: string
+          enum:
+          - CORRELATION
+          - CHI_SQUARE
+          - INTERSECTION
+          - BHATTACHARYYA
+        minValue:
+          type: number
+          format: double
+        maxValue:
+          type: number
+          format: double
+        _links:
+          $ref: "#/components/schemas/Links"
     AbstractImageRequestBody:
       type: object
       properties:
@@ -2726,7 +2549,7 @@ components:
         image:
           $ref: "#/components/schemas/FirestoreImageDto"
         visionMetadata:
-          $ref: "#/components/schemas/FirestoreVisionMetadataDto"
+          $ref: "#/components/schemas/ImageAnalysisMetadataResponse"
         tags:
           type: array
           items:
@@ -2737,22 +2560,10 @@ components:
             type: string
         userId:
           type: string
-        temporary:
-          type: boolean
-        collectionType:
+        collectionKey:
           type: string
-    FirestoreHSBColorDto:
-      type: object
-      properties:
-        hue:
-          type: number
-          format: float
-        saturation:
-          type: number
-          format: float
-        brightness:
-          type: number
-          format: float
+        collectionName:
+          type: string
     FirestoreImageDto:
       type: object
       properties:
@@ -2774,11 +2585,9 @@ components:
         uploadedAt:
           type: string
           format: date-time
-        hsbColor:
-          $ref: "#/components/schemas/FirestoreHSBColorDto"
         signedUrl:
           type: string
-    FirestoreVisionMetadataDto:
+    ImageAnalysisMetadataResponse:
       type: object
       properties:
         labels:
@@ -2884,27 +2693,11 @@ components:
             type: string
         userId:
           type: string
+        collectionName:
+          type: string
       required:
       - name
-    AcknowledgeCapRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-    CheckCapResponse:
-      type: object
-      properties:
-        temporaryCapId:
-          type: string
-        similarCaps:
-          type: array
-          items:
-            $ref: "#/components/schemas/SimilarCapDto"
-        hasSimilarCaps:
-          type: boolean
-    SimilarCapDto:
+    SimilarItem:
       type: object
       properties:
         id:
@@ -2916,6 +2709,15 @@ components:
         similarityScore:
           type: number
           format: double
+    ValidateItemResponse:
+      type: object
+      properties:
+        similarCaps:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarItem"
+        hasSimilarItems:
+          type: boolean
     ComparisonRangeDto:
       type: object
       properties:
@@ -2940,6 +2742,106 @@ components:
           format: int64
         url:
           type: string
+    UserCollectionResponse:
+      type: object
+      properties:
+        collectionKey:
+          type: string
+        collectionName:
+          type: string
+    Pageable:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+        sort:
+          type: array
+          items:
+            type: string
+    CollectionItemSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        signedUrl:
+          type: string
+        collectionKey:
+          type: string
+        collectionName:
+          type: string
+        objectName:
+          type: string
+        customTags:
+          type: object
+          additionalProperties:
+            type: string
+    PageCollectionItemSummary:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        numberOfElements:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        pageable:
+          $ref: "#/components/schemas/PageableObject"
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionItemSummary"
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: "#/components/schemas/SortObject"
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        unpaged:
+          type: boolean
+        paged:
+          type: boolean
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: "#/components/schemas/SortObject"
+    SortObject:
+      type: object
+      properties:
+        unsorted:
+          type: boolean
+        sorted:
+          type: boolean
+        empty:
+          type: boolean
     Link:
       type: object
       properties:

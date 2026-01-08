@@ -23,12 +23,12 @@
       } @else {
         @if (collections().length > 0 && !isCreatingNew()) {
           <div class="collections-list">
-            @for (collection of collections(); track collection) {
+            @for (collection of collections(); track collection.collectionKey) {
               <button
                 class="collection-btn"
-                [class.selected]="selectedCollection() === collection"
-                (click)="selectCollection(collection)">
-                {{ collection }}
+                [class.selected]="selectedCollectionKey() === collection.collectionKey"
+                (click)="selectCollection(collection.collectionKey)">
+                {{ collection.collectionName }}
               </button>
             }
           </div>
@@ -62,7 +62,7 @@
           <button
             class="btn btn-primary"
             (click)="confirmCollection()"
-            [disabled]="(!selectedCollection() && !isCreatingNew()) || (isCreatingNew() && !newCollectionName().trim())">
+            [disabled]="(!selectedCollectionKey() && !isCreatingNew()) || (isCreatingNew() && !newCollectionName().trim())">
             Continue
           </button>
         </div>
@@ -74,7 +74,7 @@
   @if (currentStep() === 'source-selection') {
     <div class="source-selection">
       <div class="selected-collection-badge">
-        Collection: <strong>{{ selectedCollection() }}</strong>
+        Collection: <strong>{{ isCreatingNew() ? newCollectionName() : selectedCollectionName() }}</strong>
       </div>
       <h2>Choose Image Source</h2>
       <div class="source-options">
@@ -170,7 +170,7 @@
   @if (currentStep() === 'form') {
     <div class="form-container">
       <div class="selected-collection-badge">
-        Collection: <strong>{{ selectedCollection() }}</strong>
+        Collection: <strong>{{ isCreatingNew() ? newCollectionName() : selectedCollectionName() }}</strong>
       </div>
 
       @if (croppedImage(); as blob) {

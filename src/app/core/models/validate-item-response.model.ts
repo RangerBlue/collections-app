@@ -6,7 +6,6 @@ export interface SimilarItem {
 }
 
 export interface ValidateItemResponse {
-  temporaryCapId: string;
   similarCaps: SimilarItem[];
-  hasSimilarCaps: boolean;
+  hasSimilarItems: boolean;
 }

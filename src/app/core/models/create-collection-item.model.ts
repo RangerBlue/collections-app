@@ -3,5 +3,6 @@ export interface CreateCollectionItemRequest {
   description?: string;
   tags?: string[];
   customTags?: Record<string, string>;
-  userId: string;
+  userId?: string;
+  collectionName?: string;
 }

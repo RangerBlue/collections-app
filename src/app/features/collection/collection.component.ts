@@ -5,7 +5,8 @@ import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { CollectionService } from './collection.service';
-import { CollectionItem } from '../../core/models/collection-item.model';
+import { CollectionItemResponse, CollectionItemSummary, UserCollectionResponse } from '../../core/models/collection-item.model';
+import { UpdateCollectionItem } from '../../core/models/update-collection-item.model';
 
 @Component({
   selector: 'app-collection',
@@ -20,25 +21,47 @@ export class CollectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // Collection selection
-  readonly collections = signal<string[]>([]);
-  readonly selectedCollection = signal<string>('');
+  readonly collections = signal<UserCollectionResponse[]>([]);
+  readonly selectedCollectionKey = signal<string>('');
   readonly isLoadingCollections = signal<boolean>(true);
 
-  readonly items = signal<CollectionItem[]>([]);
+  // Computed signal for selected collection name (for display)
+  readonly selectedCollectionName = computed(() => {
+    const key = this.selectedCollectionKey();
+    const collection = this.collections().find(c => c.collectionKey === key);
+    return collection?.collectionName ?? '';
+  });
+
+  readonly items = signal<CollectionItemSummary[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
   readonly currentPage = signal<number>(0);
   readonly pageSize = signal<number>(12);
-  readonly hasMore = signal<boolean>(true);
+  readonly totalPages = signal<number>(0);
+  readonly totalElements = signal<number>(0);
 
   // Item detail modal
-  readonly selectedItem = signal<CollectionItem | null>(null);
+  readonly selectedItem = signal<CollectionItemResponse | null>(null);
+
+  // Edit mode
+  readonly isEditMode = signal<boolean>(false);
+  readonly isSaving = signal<boolean>(false);
+  readonly editName = signal<string>('');
+  readonly editDescription = signal<string>('');
+  readonly editCustomTags = signal<Record<string, string>>({});
+  readonly newTagKey = signal<string>('');
+  readonly newTagValue = signal<string>('');
+
+  // Image update
+  readonly isUpdatingImage = signal<boolean>(false);
+  readonly newImagePreview = signal<string | null>(null);
+  private newImageFile: Blob | null = null;
 
   // Search
   readonly searchQuery = signal<string>('');
-  readonly isSearchMode = signal<boolean>(false);
 
-  readonly offset = computed(() => this.currentPage() * this.pageSize());
+  readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
+  readonly hasPrevious = computed(() => this.currentPage() > 0);
 
   ngOnInit(): void {
     this.loadCollections();
@@ -50,14 +73,9 @@ export class CollectionComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
-    ).subscribe(query => {
-      if (query.trim()) {
-        this.performSearch(query);
-      } else {
-        this.isSearchMode.set(false);
-        this.currentPage.set(0);
-        this.loadItems();
-      }
+    ).subscribe(() => {
+      this.currentPage.set(0);
+      this.loadItems();
     });
   }
 
@@ -72,7 +90,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
       next: (collections) => {
         this.collections.set(collections);
         if (collections.length > 0) {
-          this.selectedCollection.set(collections[0]);
+          this.selectedCollectionKey.set(collections[0].collectionKey);
           this.loadItems();
         }
         this.isLoadingCollections.set(false);
@@ -85,9 +103,9 @@ export class CollectionComponent implements OnInit, OnDestroy {
     });
   }
 
-  selectCollection(collection: string): void {
-    if (collection !== this.selectedCollection()) {
-      this.selectedCollection.set(collection);
+  selectCollection(collectionKey: string): void {
+    if (collectionKey !== this.selectedCollectionKey()) {
+      this.selectedCollectionKey.set(collectionKey);
       this.currentPage.set(0);
       this.clearSearch();
       this.loadItems();
@@ -95,17 +113,20 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   loadItems(): void {
-    const collection = this.selectedCollection();
-    if (!collection) return;
+    const collectionKey = this.selectedCollectionKey();
+    if (!collectionKey) return;
 
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.collectionService.getItems(collection, this.pageSize(), this.offset())
+    const query = this.searchQuery().trim() || undefined;
+
+    this.collectionService.getItems(collectionKey, this.currentPage(), this.pageSize(), query)
       .subscribe({
-        next: (items) => {
-          this.items.set(items);
-          this.hasMore.set(items.length === this.pageSize());
+        next: (response) => {
+          this.items.set(response.content);
+          this.totalPages.set(response.totalPages);
+          this.totalElements.set(response.totalElements);
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -134,8 +155,19 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.loadItems();
   }
 
-  openItemDetail(item: CollectionItem): void {
-    this.selectedItem.set(item);
+  openItemDetail(item: CollectionItemSummary): void {
+    const collectionKey = this.selectedCollectionKey();
+    if (!collectionKey) return;
+
+    this.collectionService.getItem(collectionKey, item.id).subscribe({
+      next: (fullItem) => {
+        this.selectedItem.set(fullItem);
+      },
+      error: (err) => {
+        console.error('Error loading item details:', err);
+        this.error.set('Failed to load item details.');
+      }
+    });
   }
 
   closeItemDetail(): void {
@@ -152,35 +184,150 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.searchSubject.next(query);
   }
 
-  private performSearch(query: string): void {
-    const collection = this.selectedCollection();
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.currentPage.set(0);
+    this.loadItems();
+  }
 
-    if (!collection) {
-      return;
-    }
+  // Edit mode methods
+  enterEditMode(): void {
+    const item = this.selectedItem();
+    if (!item) return;
 
-    this.isLoading.set(true);
-    this.isSearchMode.set(true);
-    this.error.set(null);
+    this.editName.set(item.name);
+    this.editDescription.set(item.description || '');
+    this.editCustomTags.set({ ...(item.customTags || {}) });
+    this.newTagKey.set('');
+    this.newTagValue.set('');
+    this.newImagePreview.set(null);
+    this.newImageFile = null;
+    this.isEditMode.set(true);
+  }
 
-    this.collectionService.searchItems(collection, query).subscribe({
-      next: (items) => {
-        this.items.set(items);
-        this.hasMore.set(false);
-        this.isLoading.set(false);
+  cancelEdit(): void {
+    this.isEditMode.set(false);
+    this.newImagePreview.set(null);
+    this.newImageFile = null;
+  }
+
+  saveChanges(): void {
+    const item = this.selectedItem();
+    const collectionKey = this.selectedCollectionKey();
+    if (!item || !collectionKey) return;
+
+    const updateRequest: UpdateCollectionItem = {
+      name: this.editName(),
+      description: this.editDescription(),
+      customTags: this.editCustomTags()
+    };
+
+    this.isSaving.set(true);
+
+    this.collectionService.updateItem(collectionKey, item.id, updateRequest).subscribe({
+      next: (updatedItem) => {
+        this.selectedItem.set(updatedItem);
+        this.isEditMode.set(false);
+        this.isSaving.set(false);
+        this.loadItems();
       },
       error: (err) => {
-        this.error.set('Failed to search items. Please try again.');
-        this.isLoading.set(false);
-        console.error('Error searching items:', err);
+        console.error('Error updating item:', err);
+        this.error.set('Failed to update item. Please try again.');
+        this.isSaving.set(false);
       }
     });
   }
 
-  clearSearch(): void {
-    this.searchQuery.set('');
-    this.isSearchMode.set(false);
-    this.currentPage.set(0);
-    this.loadItems();
+  // Custom tags management
+  addCustomTag(): void {
+    const key = this.newTagKey().trim();
+    const value = this.newTagValue().trim();
+    if (!key || !value) return;
+
+    this.editCustomTags.update(tags => ({
+      ...tags,
+      [key]: value
+    }));
+    this.newTagKey.set('');
+    this.newTagValue.set('');
+  }
+
+  removeCustomTag(key: string): void {
+    this.editCustomTags.update(tags => {
+      const newTags = { ...tags };
+      delete newTags[key];
+      return newTags;
+    });
+  }
+
+  // Image update methods
+  selectNewImage(): void {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      if (target.files && target.files[0]) {
+        this.handleNewImageSelected(target.files[0]);
+      }
+    };
+    fileInput.click();
+  }
+
+  private handleNewImageSelected(file: File): void {
+    this.newImageFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.newImagePreview.set(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  cancelImageChange(): void {
+    this.newImagePreview.set(null);
+    this.newImageFile = null;
+  }
+
+  updateImage(): void {
+    const item = this.selectedItem();
+    const collectionKey = this.selectedCollectionKey();
+    if (!item || !collectionKey || !this.newImageFile) return;
+
+    this.isUpdatingImage.set(true);
+
+    this.collectionService.updateImage(collectionKey, item.id, this.newImageFile).subscribe({
+      next: (updatedItem) => {
+        this.selectedItem.set(updatedItem);
+        this.newImagePreview.set(null);
+        this.newImageFile = null;
+        this.isUpdatingImage.set(false);
+        this.loadItems();
+      },
+      error: (err) => {
+        console.error('Error updating image:', err);
+        this.error.set('Failed to update image. Please try again.');
+        this.isUpdatingImage.set(false);
+      }
+    });
+  }
+
+  deleteItem(): void {
+    const item = this.selectedItem();
+    const collectionKey = this.selectedCollectionKey();
+    if (!item || !collectionKey) return;
+
+    if (!confirm('Are you sure you want to delete this item?')) return;
+
+    this.collectionService.deleteItem(collectionKey, item.id).subscribe({
+      next: () => {
+        this.closeItemDetail();
+        this.loadItems();
+      },
+      error: (err) => {
+        console.error('Error deleting item:', err);
+        this.error.set('Failed to delete item. Please try again.');
+      }
+    });
   }
 }

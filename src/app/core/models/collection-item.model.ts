@@ -1,12 +1,4 @@
-export interface FirestoreHSBColor {
-  hue: number;
-  saturation: number;
-  brightness: number;
-}
-
-export interface FirestoreImage {
-  storageUrl: string;
-  bucketName?: string;
+export interface FirestoreImageDto {
   objectName?: string;
   contentType?: string;
   sizeBytes?: number;
@@ -14,17 +6,16 @@ export interface FirestoreImage {
   width?: number;
   height?: number;
   uploadedAt?: string;
-  hsbColor?: FirestoreHSBColor;
   signedUrl?: string;
 }
 
-export interface VisionLabel {
+export interface VisionLabelDto {
   description: string;
   score: number;
   topicality: number;
 }
 
-export interface VisionColor {
+export interface VisionColorDto {
   red: number;
   green: number;
   blue: number;
@@ -32,46 +23,81 @@ export interface VisionColor {
   pixelFraction: number;
 }
 
-export interface VisionText {
+export interface VisionTextDto {
   fullText: string;
   words: string[];
   language: string;
 }
 
-export interface VisionLogo {
+export interface VisionLogoDto {
   description: string;
   score: number;
 }
 
-export interface FirestoreVisionMetadata {
-  labels?: VisionLabel[];
-  dominantColors?: VisionColor[];
-  textAnnotation?: VisionText;
-  logoAnnotation?: VisionLogo;
+export interface ImageAnalysisMetadataResponse {
+  labels?: VisionLabelDto[];
+  dominantColors?: VisionColorDto[];
+  textAnnotation?: VisionTextDto;
+  logoAnnotation?: VisionLogoDto;
   overallConfidence?: number;
   analyzedAt?: string;
 }
 
-export interface FirestoreEmbedding {
-  vector: number[];
-  dimensions: number;
-  modelId: string;
-  modelVersion: string;
-  generatedAt: string;
+export interface UserCollectionResponse {
+  collectionKey: string;
+  collectionName: string;
 }
 
-export interface CollectionItem {
+export interface CollectionItemResponse {
   id: string;
   name: string;
   description: string;
   createdAt: string;
   updatedAt: string;
-  image: FirestoreImage;
-  visionMetadata?: FirestoreVisionMetadata;
-  embedding?: FirestoreEmbedding;
+  image: FirestoreImageDto;
+  visionMetadata?: ImageAnalysisMetadataResponse;
   tags: string[];
   customTags?: Record<string, string>;
   userId: string;
-  temporary: boolean;
-  collectionType: string;
+  collectionKey: string;
+  collectionName: string;
+}
+
+export interface CollectionItemSummary {
+  id: string;
+  name: string;
+  signedUrl: string;
+  collectionKey: string;
+  collectionName: string;
+  objectName: string;
+  customTags?: Record<string, string>;
+}
+
+export interface SortObject {
+  sorted: boolean;
+  unsorted: boolean;
+  empty: boolean;
+}
+
+export interface PageableObject {
+  paged: boolean;
+  pageNumber: number;
+  pageSize: number;
+  unpaged: boolean;
+  offset: number;
+  sort: SortObject;
+}
+
+export interface PageCollectionItemSummary {
+  totalPages: number;
+  totalElements: number;
+  numberOfElements: number;
+  first: boolean;
+  last: boolean;
+  pageable: PageableObject;
+  size: number;
+  content: CollectionItemSummary[];
+  number: number;
+  sort: SortObject;
+  empty: boolean;
 }

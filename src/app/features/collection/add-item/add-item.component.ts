@@ -1,10 +1,11 @@
-import { Component, signal, inject, ViewChild, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { Component, signal, inject, ViewChild, ElementRef, OnDestroy, OnInit, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { CollectionService } from '../collection.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BlobToUrlPipe } from '../../../shared/pipes/blob-to-url.pipe';
+import { UserCollectionResponse } from '../../../core/models/collection-item.model';
 
 type CropShape = 'rectangle' | 'circle';
 type ComponentStep = 'collection-selection' | 'source-selection' | 'capture' | 'crop' | 'form';
@@ -41,18 +42,25 @@ export class AddItemComponent implements OnInit, OnDestroy {
   readonly newTagValue = signal<string>('');
 
   // Collection selection
-  readonly collections = signal<string[]>([]);
-  readonly selectedCollection = signal<string>('');
+  readonly collections = signal<UserCollectionResponse[]>([]);
+  readonly selectedCollectionKey = signal<string>('');
   readonly newCollectionName = signal<string>('');
   readonly isLoadingCollections = signal<boolean>(true);
   readonly isCreatingNew = signal<boolean>(false);
+
+  // Computed signal for selected collection name (for display)
+  readonly selectedCollectionName = computed(() => {
+    const key = this.selectedCollectionKey();
+    const collection = this.collections().find(c => c.collectionKey === key);
+    return collection?.collectionName ?? '';
+  });
 
   private mediaStream: MediaStream | null = null;
 
   ngOnInit(): void {
     const collectionParam = this.route.snapshot.queryParamMap.get('collection');
     if (collectionParam) {
-      this.selectedCollection.set(collectionParam);
+      this.selectedCollectionKey.set(collectionParam);
       this.currentStep.set('source-selection');
     }
     this.loadCollections();
@@ -63,8 +71,8 @@ export class AddItemComponent implements OnInit, OnDestroy {
     this.collectionService.getCollections().subscribe({
       next: (collections) => {
         this.collections.set(collections);
-        if (collections.length > 0 && !this.selectedCollection()) {
-          this.selectedCollection.set(collections[0]);
+        if (collections.length > 0 && !this.selectedCollectionKey()) {
+          this.selectedCollectionKey.set(collections[0].collectionKey);
         }
         this.isLoadingCollections.set(false);
       },
@@ -77,33 +85,43 @@ export class AddItemComponent implements OnInit, OnDestroy {
     });
   }
 
-  selectCollection(collection: string): void {
-    this.selectedCollection.set(collection);
+  selectCollection(collectionKey: string): void {
+    this.selectedCollectionKey.set(collectionKey);
     this.isCreatingNew.set(false);
   }
 
   toggleCreateNew(): void {
     this.isCreatingNew.set(!this.isCreatingNew());
     if (this.isCreatingNew()) {
-      this.selectedCollection.set('');
+      this.selectedCollectionKey.set('');
     } else if (this.collections().length > 0) {
-      this.selectedCollection.set(this.collections()[0]);
+      this.selectedCollectionKey.set(this.collections()[0].collectionKey);
     }
   }
 
   confirmCollection(): void {
-    const collectionName = this.isCreatingNew()
-      ? this.newCollectionName().trim()
-      : this.selectedCollection();
-
-    if (!collectionName) {
-      this.error.set('Please select or enter a collection name.');
-      return;
+    if (this.isCreatingNew()) {
+      const collectionName = this.newCollectionName().trim();
+      if (!collectionName) {
+        this.error.set('Please enter a collection name.');
+        return;
+      }
+      // Generate UUID for new collection key
+      const collectionKey = crypto.randomUUID();
+      this.selectedCollectionKey.set(collectionKey);
+    } else {
+      if (!this.selectedCollectionKey()) {
+        this.error.set('Please select a collection.');
+        return;
+      }
     }
 
-    this.selectedCollection.set(collectionName);
     this.error.set(null);
     this.currentStep.set('source-selection');
+  }
+
+  private generateUUID(): string {
+    return crypto.randomUUID();
   }
 
   // Image source methods
@@ -264,9 +282,9 @@ export class AddItemComponent implements OnInit, OnDestroy {
     const croppedBlob = this.croppedImage();
     const name = this.itemName().trim();
     const userId = this.authService.userProfile()?.sub;
-    const collection = this.selectedCollection();
+    const collectionKey = this.selectedCollectionKey();
 
-    if (!collection) {
+    if (!collectionKey) {
       this.error.set('Please select a collection.');
       return;
     }
@@ -300,10 +318,12 @@ export class AddItemComponent implements OnInit, OnDestroy {
       userId: userId,
       tags: [],
       description: '',
-      customTags: Object.keys(customTagsRecord).length > 0 ? customTagsRecord : undefined
+      customTags: Object.keys(customTagsRecord).length > 0 ? customTagsRecord : undefined,
+      // Include collectionName when creating a new collection
+      collectionName: this.isCreatingNew() ? this.newCollectionName().trim() : undefined
     };
 
-    this.collectionService.addItem(collection, croppedBlob, request)
+    this.collectionService.addItem(collectionKey, croppedBlob, request)
       .subscribe({
         next: () => {
           this.router.navigate(['/collection']);

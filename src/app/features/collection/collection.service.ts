@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CollectionItem } from '../../core/models/collection-item.model';
+import { CollectionItemResponse, PageCollectionItemSummary, UserCollectionResponse } from '../../core/models/collection-item.model';
 import { CreateCollectionItemRequest } from '../../core/models/create-collection-item.model';
+import { UpdateCollectionItem } from '../../core/models/update-collection-item.model';
 import { ValidateItemResponse } from '../../core/models/validate-item-response.model';
 
 @Injectable({
@@ -11,10 +12,10 @@ import { ValidateItemResponse } from '../../core/models/validate-item-response.m
 })
 export class CollectionService {
   private http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/api/collections`;
+  private readonly baseUrl = `${environment.apiUrl}/api/v1/collections`;
 
-  getCollections(): Observable<string[]> {
-    return this.http.get<string[]>(this.baseUrl, {
+  getCollections(): Observable<UserCollectionResponse[]> {
+    return this.http.get<UserCollectionResponse[]>(this.baseUrl, {
       headers: {
         'Accept': 'application/vnd.hal+json'
       }
@@ -22,16 +23,28 @@ export class CollectionService {
   }
 
   getItems(
-    collectionType: string = 'caps',
-    limit: number = 10,
-    offset: number = 0
-  ): Observable<CollectionItem[]> {
-    const params = new HttpParams()
-      .set('limit', limit.toString())
-      .set('offset', offset.toString());
+    collectionKey: string,
+    page: number = 0,
+    size: number = 10,
+    query?: string,
+    sort?: string[]
+  ): Observable<PageCollectionItemSummary> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
 
-    return this.http.get<CollectionItem[]>(
-      `${this.baseUrl}/${collectionType}/items/paginated`,
+    if (query) {
+      params = params.set('query', query);
+    }
+
+    if (sort && sort.length > 0) {
+      sort.forEach(s => {
+        params = params.append('sort', s);
+      });
+    }
+
+    return this.http.get<PageCollectionItemSummary>(
+      `${this.baseUrl}/${collectionKey}/items`,
       {
         params,
         headers: {
@@ -41,9 +54,9 @@ export class CollectionService {
     );
   }
 
-  getItem(collectionType: string, id: string): Observable<CollectionItem> {
-    return this.http.get<CollectionItem>(
-      `${this.baseUrl}/${collectionType}/items/${id}`,
+  getItem(collectionKey: string, id: string): Observable<CollectionItemResponse> {
+    return this.http.get<CollectionItemResponse>(
+      `${this.baseUrl}/${collectionKey}/items/${id}`,
       {
         headers: {
           'Accept': 'application/vnd.hal+json'
@@ -53,18 +66,18 @@ export class CollectionService {
   }
 
   addItem(
-    collectionType: string,
+    collectionKey: string,
     file: Blob,
     request: CreateCollectionItemRequest
-  ): Observable<CollectionItem> {
+  ): Observable<CollectionItemResponse> {
     const formData = new FormData();
     formData.append('file', file, 'image.jpg');
     formData.append('request', new Blob([JSON.stringify(request)], {
       type: 'application/json'
     }));
 
-    return this.http.post<CollectionItem>(
-      `${this.baseUrl}/${collectionType}/items`,
+    return this.http.post<CollectionItemResponse>(
+      `${this.baseUrl}/${collectionKey}/items`,
       formData,
       {
         headers: {
@@ -75,14 +88,14 @@ export class CollectionService {
   }
 
   validateItem(
-    collectionType: string,
+    collectionKey: string,
     file: Blob
   ): Observable<ValidateItemResponse> {
     const formData = new FormData();
     formData.append('file', file, 'image.jpg');
 
     return this.http.post<ValidateItemResponse>(
-      `${this.baseUrl}/${collectionType}/items/validate`,
+      `${this.baseUrl}/${collectionKey}/items/validate`,
       formData,
       {
         headers: {
@@ -92,20 +105,54 @@ export class CollectionService {
     );
   }
 
-  searchItems(
-    collectionType: string,
-    query: string
-  ): Observable<CollectionItem[]> {
-    const params = new HttpParams().set('query', query);
-
-    return this.http.get<CollectionItem[]>(
-      `${this.baseUrl}/${collectionType}/items/search`,
+  updateItem(
+    collectionKey: string,
+    id: string,
+    request: UpdateCollectionItem
+  ): Observable<CollectionItemResponse> {
+    return this.http.put<CollectionItemResponse>(
+      `${this.baseUrl}/${collectionKey}/items/${id}`,
+      request,
       {
-        params,
+        headers: {
+          'Accept': 'application/vnd.hal+json',
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  updateImage(
+    collectionKey: string,
+    id: string,
+    file: Blob
+  ): Observable<CollectionItemResponse> {
+    const formData = new FormData();
+    formData.append('file', file, 'image.jpg');
+
+    return this.http.put<CollectionItemResponse>(
+      `${this.baseUrl}/${collectionKey}/items/${id}/image`,
+      formData,
+      {
         headers: {
           'Accept': 'application/vnd.hal+json'
         }
       }
     );
   }
+
+  deleteItem(
+    collectionKey: string,
+    id: string
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/${collectionKey}/items/${id}`,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json'
+        }
+      }
+    );
+  }
+
 }
