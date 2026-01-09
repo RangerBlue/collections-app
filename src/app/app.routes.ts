@@ -11,6 +11,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
   },
   {
+    path: 'browse',
+    loadComponent: () => import('./features/public-collection/public-collection.component').then(m => m.PublicCollectionComponent)
+  },
+  {
     path: 'collection',
     loadComponent: () => import('./features/collection/collection.component').then(m => m.CollectionComponent),
     canActivate: [authGuard]

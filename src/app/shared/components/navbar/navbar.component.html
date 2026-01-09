@@ -7,6 +7,9 @@
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
       Home
     </a>
+    <a routerLink="/browse" routerLinkActive="active">
+      Bottle Cap Collection
+    </a>
     @if (authService.isAuthenticated()) {
       <a routerLink="/collection" routerLinkActive="active">
         My Collection
