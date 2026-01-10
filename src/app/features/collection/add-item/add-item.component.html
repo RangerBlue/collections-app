@@ -205,7 +205,13 @@
                 <div class="custom-tag-item">
                   <span class="tag-key">{{ tag.key }}</span>
                   <span class="tag-separator">:</span>
-                  <span class="tag-value">{{ tag.value }}</span>
+                  <input
+                    type="text"
+                    [ngModel]="tag.value"
+                    (ngModelChange)="updateTagValue(tag.key, $event)"
+                    [name]="'tagValue_' + tag.key"
+                    placeholder="Enter value"
+                    class="tag-value-input" />
                   <button
                     type="button"
                     class="tag-remove-btn"
@@ -225,7 +231,13 @@
               (ngModelChange)="newTagKey.set($event)"
               name="newTagKey"
               placeholder="Key"
+              list="availableTagKeys"
               class="tag-input tag-key-input" />
+            <datalist id="availableTagKeys">
+              @for (tagKey of unusedTagKeys(); track tagKey) {
+                <option [value]="tagKey"></option>
+              }
+            </datalist>
             <input
               type="text"
               [ngModel]="newTagValue()"

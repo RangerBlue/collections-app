@@ -155,4 +155,15 @@ export class CollectionService {
     );
   }
 
+  getAvailableTags(collectionKey: string): Observable<string[]> {
+    return this.http.get<string[]>(
+      `${this.baseUrl}/${collectionKey}/available-tags`,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json'
+        }
+      }
+    );
+  }
+
 }

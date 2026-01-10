@@ -355,19 +355,42 @@
 
 .custom-tags-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
 .custom-tag-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   background: #e0e7ff;
   color: #3730a3;
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
   font-size: 0.85rem;
+  width: 100%;
+  gap: 0.25rem;
+}
+
+.custom-tag-item .tag-value-input {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: #fff;
+  color: #3730a3;
+  max-width: none;
+}
+
+.custom-tag-item .tag-value-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.custom-tag-item .tag-value-input::placeholder {
+  color: #a5b4fc;
 }
 
 .tag-key {

@@ -40,6 +40,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
   readonly customTags = signal<Array<{ key: string; value: string }>>([]);
   readonly newTagKey = signal<string>('');
   readonly newTagValue = signal<string>('');
+  readonly availableTagKeys = signal<string[]>([]);
 
   // Collection selection
   readonly collections = signal<UserCollectionResponse[]>([]);
@@ -55,6 +56,12 @@ export class AddItemComponent implements OnInit, OnDestroy {
     return collection?.collectionName ?? '';
   });
 
+  // Computed signal for unused tag keys (filter out already used keys)
+  readonly unusedTagKeys = computed(() => {
+    const usedKeys = new Set(this.customTags().map(tag => tag.key));
+    return this.availableTagKeys().filter(key => !usedKeys.has(key));
+  });
+
   private mediaStream: MediaStream | null = null;
 
   ngOnInit(): void {
@@ -62,6 +69,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
     if (collectionParam) {
       this.selectedCollectionKey.set(collectionParam);
       this.currentStep.set('source-selection');
+      this.loadAvailableTags(collectionParam);
     }
     this.loadCollections();
   }
@@ -109,15 +117,35 @@ export class AddItemComponent implements OnInit, OnDestroy {
       // Generate UUID for new collection key
       const collectionKey = crypto.randomUUID();
       this.selectedCollectionKey.set(collectionKey);
+      // New collection has no available tags yet
+      this.availableTagKeys.set([]);
     } else {
       if (!this.selectedCollectionKey()) {
         this.error.set('Please select a collection.');
         return;
       }
+      // Load available tags for existing collection
+      this.loadAvailableTags(this.selectedCollectionKey());
     }
 
     this.error.set(null);
     this.currentStep.set('source-selection');
+  }
+
+  private loadAvailableTags(collectionKey: string): void {
+    this.collectionService.getAvailableTags(collectionKey).subscribe({
+      next: (tags) => {
+        this.availableTagKeys.set(tags);
+        // Pre-populate customTags with available keys and empty values
+        const preFilled = tags.map(key => ({ key, value: '' }));
+        this.customTags.set(preFilled);
+      },
+      error: (err) => {
+        console.error('Failed to load available tags:', err);
+        // Not critical, just won't have suggestions
+        this.availableTagKeys.set([]);
+      }
+    });
   }
 
   private generateUUID(): string {
@@ -261,6 +289,14 @@ export class AddItemComponent implements OnInit, OnDestroy {
     this.customTags.set(this.customTags().filter(tag => tag.key !== key));
   }
 
+  updateTagValue(key: string, value: string): void {
+    this.customTags.set(
+      this.customTags().map(tag =>
+        tag.key === key ? { ...tag, value } : tag
+      )
+    );
+  }
+
   retakePicture(): void {
     this.imageSource.set('');
     this.croppedImage.set(null);
@@ -274,6 +310,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
     this.customTags.set([]);
     this.newTagKey.set('');
     this.newTagValue.set('');
+    this.availableTagKeys.set([]);
     this.currentStep.set('collection-selection');
   }
 
