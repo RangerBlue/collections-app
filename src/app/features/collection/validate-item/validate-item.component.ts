@@ -33,6 +33,14 @@ export class ValidateItemComponent implements OnInit, OnDestroy {
   readonly error = signal<string | null>(null);
   readonly isCameraActive = signal<boolean>(false);
 
+  // Mobile detection - hide camera option on mobile as file upload provides camera access
+  readonly isMobile = signal<boolean>(this.detectMobile());
+
+  private detectMobile(): boolean {
+    const userAgent = navigator.userAgent || navigator.vendor;
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+  }
+
   // Collection selection
   readonly collections = signal<UserCollectionResponse[]>([]);
   readonly selectedCollectionKey = signal<string>('');

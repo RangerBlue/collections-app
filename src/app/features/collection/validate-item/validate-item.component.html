@@ -78,10 +78,12 @@
       </div>
       <h2>Choose Image Source</h2>
       <div class="source-options">
-        <button class="source-btn" (click)="selectCamera()">
-          <span class="source-icon">📷</span>
-          <span>Take Picture</span>
-        </button>
+        @if (!isMobile()) {
+          <button class="source-btn" (click)="selectCamera()">
+            <span class="source-icon">📷</span>
+            <span>Take Picture</span>
+          </button>
+        }
         <button class="source-btn" (click)="selectUpload()">
           <span class="source-icon">📁</span>
           <span>Upload Image</span>
