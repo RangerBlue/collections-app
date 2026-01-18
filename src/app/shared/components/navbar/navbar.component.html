@@ -1,48 +1,56 @@
 <nav class="navbar">
   <div class="nav-brand">
-    <a routerLink="/">Collections App</a>
+    <a routerLink="/">Collections</a>
   </div>
 
-  <div class="nav-links">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-      Home
-    </a>
-    @if (authService.isAuthenticated()) {
-      <a routerLink="/collection" routerLinkActive="active">
-        My Collection
+  <button class="hamburger" (click)="toggleMenu()" [class.open]="menuOpen()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-menu" [class.open]="menuOpen()">
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">
+        Home
       </a>
-    }
-    <a routerLink="/contact" routerLinkActive="active">
-      Contact
-    </a>
-  </div>
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/collection" routerLinkActive="active" (click)="closeMenu()">
+          My Collection
+        </a>
+      }
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">
+        Contact
+      </a>
+    </div>
 
-  <div class="nav-auth">
-    @if (authService.isLoading()) {
-      <span class="loading-text">Loading...</span>
-    } @else if (authService.isAuthenticated()) {
-      <div class="user-info">
-        <div class="user-profile">
-          @if (authService.userProfile()?.picture && !imageError()) {
-            <img
-              [src]="authService.userProfile()?.picture"
-              alt=""
-              class="user-avatar"
-              (error)="onImageError()"
-            />
-          } @else {
-            <span class="user-avatar-placeholder">
-              {{ getInitials(authService.userProfile()?.name) }}
-            </span>
-          }
-          <span class="user-name">{{ getFirstName(authService.userProfile()?.name) }}</span>
+    <div class="nav-auth">
+      @if (authService.isLoading()) {
+        <span class="loading-text">Loading...</span>
+      } @else if (authService.isAuthenticated()) {
+        <div class="user-info">
+          <div class="user-profile">
+            @if (authService.userProfile()?.picture && !imageError()) {
+              <img
+                [src]="authService.userProfile()?.picture"
+                alt=""
+                class="user-avatar"
+                (error)="onImageError()"
+              />
+            } @else {
+              <span class="user-avatar-placeholder">
+                {{ getInitials(authService.userProfile()?.name) }}
+              </span>
+            }
+            <span class="user-name">{{ getFirstName(authService.userProfile()?.name) }}</span>
+          </div>
+          <button (click)="logout(); closeMenu()" class="btn btn-logout">Logout</button>
         </div>
-        <button (click)="logout()" class="btn btn-logout">Logout</button>
-      </div>
-    } @else {
-      <button (click)="login()" class="btn btn-login">
-        Sign in with Google
-      </button>
-    }
+      } @else {
+        <button (click)="login()" class="btn btn-login">
+          Sign in
+        </button>
+      }
+    </div>
   </div>
 </nav>

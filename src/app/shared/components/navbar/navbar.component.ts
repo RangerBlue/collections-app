@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 export class NavbarComponent {
   protected authService = inject(AuthService);
   readonly imageError = signal(false);
+  readonly menuOpen = signal(false);
 
   login(): void {
     this.authService.login();
@@ -23,6 +24,14 @@ export class NavbarComponent {
 
   onImageError(): void {
     this.imageError.set(true);
+  }
+
+  toggleMenu(): void {
+    this.menuOpen.update(open => !open);
+  }
+
+  closeMenu(): void {
+    this.menuOpen.set(false);
   }
 
   getFirstName(fullName: string | undefined): string {
