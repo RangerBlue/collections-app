@@ -140,11 +140,11 @@
       <div class="cropper-wrapper">
         <image-cropper
           [imageBase64]="imageSource()"
-          [maintainAspectRatio]="false"
+          [maintainAspectRatio]="cropShape() === 'circle'"
           [aspectRatio]="1"
           [resizeToWidth]="800"
-          format="jpeg"
-          [backgroundColor]="'#ffffff'"
+          [format]="cropShape() === 'circle' ? 'png' : 'jpeg'"
+          [backgroundColor]="cropShape() === 'circle' ? 'transparent' : '#ffffff'"
           [roundCropper]="cropShape() === 'circle'"
           (imageCropped)="onImageCropped($event)"
           (imageLoaded)="onImageLoaded($event)"
@@ -194,6 +194,19 @@
             name="itemName"
             placeholder="Enter item name"
             required />
+        </div>
+
+        <div class="form-group">
+          <label for="itemDescription">Description</label>
+          <textarea
+            id="itemDescription"
+            [ngModel]="itemDescription()"
+            (ngModelChange)="itemDescription.set($event)"
+            name="itemDescription"
+            placeholder="Enter description (optional)"
+            maxlength="100"
+            rows="2"></textarea>
+          <span class="char-count">{{ itemDescription().length }}/100</span>
         </div>
 
         <!-- Custom Tags Section -->

@@ -439,10 +439,11 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0.5rem;
+  overflow-y: auto;
 }
 
 .modal-content {
@@ -450,8 +451,7 @@
   border-radius: 12px;
   max-width: 600px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  margin: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
@@ -481,26 +481,26 @@
 
 .modal-header {
   text-align: center;
-  padding: 1.5rem 1.5rem 1rem;
+  padding: 1rem 1rem 0.75rem;
 }
 
 .modal-image {
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 150px;
+  max-height: 150px;
   border-radius: 12px;
   object-fit: cover;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .modal-title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: #1a1a2e;
 }
 
 .modal-body {
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 1rem 1rem;
 }
 
 /* Detail Sections */
@@ -644,25 +644,30 @@
 
 /* Modal Responsive */
 @media (min-width: 600px) {
+  .modal-overlay {
+    padding: 1rem;
+    align-items: center;
+  }
+
   .modal-content {
     max-width: 550px;
   }
 
   .modal-header {
-    padding: 2rem 2rem 1rem;
+    padding: 1.5rem 1.5rem 1rem;
   }
 
   .modal-image {
-    max-width: 250px;
-    max-height: 250px;
+    max-width: 200px;
+    max-height: 200px;
   }
 
   .modal-title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
 
   .modal-body {
-    padding: 0 2rem 2rem;
+    padding: 0 1.5rem 1.5rem;
   }
 
   .detail-label {
@@ -672,6 +677,10 @@
   .color-swatch {
     width: 50px;
     height: 50px;
+  }
+
+  .cropper-wrapper {
+    max-height: 350px;
   }
 }
 
@@ -847,7 +856,16 @@
 
 .form-textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
 }
 
 /* Custom Tags Edit */
@@ -973,4 +991,78 @@
 .btn-save:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Cropper styles */
+.crop-controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.btn-shape {
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.btn-shape:hover {
+  border-color: #4285f4;
+}
+
+.btn-shape.active {
+  background: #4285f4;
+  color: #fff;
+  border-color: #4285f4;
+}
+
+.cropper-wrapper {
+  max-height: 40vh;
+  min-height: 200px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f3f4f6;
+  margin-bottom: 1rem;
+}
+
+.cropper-wrapper image-cropper {
+  max-height: 100%;
+  display: block;
+}
+
+.crop-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3367d6;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Circle image in preview */
+.modal-image.circle {
+  border-radius: 50%;
 }

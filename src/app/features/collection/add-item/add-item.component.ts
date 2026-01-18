@@ -32,6 +32,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
   readonly croppedImage = signal<Blob | null>(null);
   readonly cropShape = signal<CropShape>('rectangle');
   readonly itemName = signal<string>('');
+  readonly itemDescription = signal<string>('');
   readonly isSubmitting = signal<boolean>(false);
   readonly error = signal<string | null>(null);
   readonly isCameraActive = signal<boolean>(false);
@@ -354,7 +355,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
       name: name,
       userId: userId,
       tags: [],
-      description: '',
+      description: this.itemDescription().trim(),
       customTags: Object.keys(customTagsRecord).length > 0 ? customTagsRecord : undefined,
       // Include collectionName when creating a new collection
       collectionName: this.isCreatingNew() ? this.newCollectionName().trim() : undefined

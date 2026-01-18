@@ -135,12 +135,59 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <button class="modal-close" (click)="closeItemDetail()">&times;</button>
 
-      @if (!isEditMode()) {
+      @if (isCropping()) {
+        <!-- CROP MODE -->
+        <div class="modal-header">
+          <h2 class="modal-title">Crop Image</h2>
+        </div>
+        <div class="modal-body">
+          <div class="crop-controls">
+            <button
+              class="btn btn-shape"
+              [class.active]="cropShape() === 'rectangle'"
+              (click)="cropShape.set('rectangle')">
+              Rectangle
+            </button>
+            <button
+              class="btn btn-shape"
+              [class.active]="cropShape() === 'circle'"
+              (click)="cropShape.set('circle')">
+              Circle
+            </button>
+          </div>
+
+          <div class="cropper-wrapper">
+            <image-cropper
+              [imageBase64]="cropImageSource()"
+              [maintainAspectRatio]="cropShape() === 'circle'"
+              [aspectRatio]="1"
+              [resizeToWidth]="800"
+              [format]="cropShape() === 'circle' ? 'png' : 'jpeg'"
+              [backgroundColor]="cropShape() === 'circle' ? 'transparent' : '#ffffff'"
+              [roundCropper]="cropShape() === 'circle'"
+              (imageCropped)="onImageCropped($event)"
+              (imageLoaded)="onImageLoaded($event)"
+              (cropperReady)="onCropperReady()"
+              (loadImageFailed)="onLoadImageFailed()">
+            </image-cropper>
+          </div>
+
+          <div class="crop-actions">
+            <button class="btn btn-cancel" (click)="cancelImageChange()">Cancel</button>
+            <button
+              class="btn btn-primary"
+              (click)="confirmImageCrop()"
+              [disabled]="!croppedImageBlob()">
+              Continue
+            </button>
+          </div>
+        </div>
+      } @else if (!isEditMode()) {
         <!-- VIEW MODE -->
         <div class="modal-header">
           @if (newImagePreview(); as preview) {
             <div class="image-preview-container">
-              <img [src]="preview" [alt]="item.name" class="modal-image" />
+              <img [src]="preview" [alt]="item.name" class="modal-image" [class.circle]="cropShape() === 'circle'" />
               <div class="image-preview-actions">
                 <button class="btn btn-save-small" (click)="updateImage()" [disabled]="isUpdatingImage()">
                   @if (isUpdatingImage()) { Saving... } @else { Save Image }
@@ -331,7 +378,9 @@
                 [ngModel]="editDescription()"
                 (ngModelChange)="editDescription.set($event)"
                 placeholder="Enter description"
-                rows="3"></textarea>
+                maxlength="100"
+                rows="2"></textarea>
+              <span class="char-count">{{ editDescription().length }}/100</span>
             </div>
 
             <!-- Custom Tags -->

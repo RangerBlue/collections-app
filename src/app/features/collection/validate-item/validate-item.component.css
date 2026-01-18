@@ -223,8 +223,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  height: calc(100dvh - 120px);
-  max-height: calc(100dvh - 120px);
+  min-height: 0;
+  flex: 1;
 }
 
 .crop-controls {
@@ -257,8 +257,8 @@
 
 .cropper-wrapper {
   flex: 1;
-  min-height: 0;
-  max-height: calc(100dvh - 220px);
+  min-height: 200px;
+  max-height: 50vh;
   overflow: hidden;
   border-radius: 8px;
   background: #f3f4f6;
@@ -266,6 +266,7 @@
 
 .cropper-wrapper image-cropper {
   max-height: 100%;
+  display: block;
 }
 
 .crop-actions {

@@ -140,10 +140,11 @@
       <div class="cropper-wrapper">
         <image-cropper
           [imageBase64]="imageSource()"
-          [maintainAspectRatio]="false"
+          [maintainAspectRatio]="cropShape() === 'circle'"
           [aspectRatio]="1"
           [resizeToWidth]="800"
-          format="jpeg"
+          [format]="cropShape() === 'circle' ? 'png' : 'jpeg'"
+          [backgroundColor]="cropShape() === 'circle' ? 'transparent' : '#ffffff'"
           [roundCropper]="cropShape() === 'circle'"
           (imageCropped)="onImageCropped($event)"
           (imageLoaded)="onImageLoaded($event)"

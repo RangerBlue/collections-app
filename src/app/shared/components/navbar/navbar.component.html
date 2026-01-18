@@ -7,14 +7,14 @@
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
       Home
     </a>
-    <a routerLink="/browse" routerLinkActive="active">
-      Bottle Cap Collection
-    </a>
     @if (authService.isAuthenticated()) {
       <a routerLink="/collection" routerLinkActive="active">
         My Collection
       </a>
     }
+    <a routerLink="/contact" routerLinkActive="active">
+      Contact
+    </a>
   </div>
 
   <div class="nav-auth">
@@ -22,14 +22,21 @@
       <span class="loading-text">Loading...</span>
     } @else if (authService.isAuthenticated()) {
       <div class="user-info">
-        @if (authService.userProfile()?.picture) {
-          <img
-            [src]="authService.userProfile()?.picture"
-            [alt]="authService.userProfile()?.name"
-            class="user-avatar"
-          />
-        }
-        <span class="user-name">{{ authService.userProfile()?.name }}</span>
+        <div class="user-profile">
+          @if (authService.userProfile()?.picture && !imageError()) {
+            <img
+              [src]="authService.userProfile()?.picture"
+              alt=""
+              class="user-avatar"
+              (error)="onImageError()"
+            />
+          } @else {
+            <span class="user-avatar-placeholder">
+              {{ getInitials(authService.userProfile()?.name) }}
+            </span>
+          }
+          <span class="user-name">{{ getFirstName(authService.userProfile()?.name) }}</span>
+        </div>
         <button (click)="logout()" class="btn btn-logout">Logout</button>
       </div>
     } @else {

@@ -4,14 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { CollectionService } from './collection.service';
 import { CollectionItemResponse, CollectionItemSummary, UserCollectionResponse } from '../../core/models/collection-item.model';
 import { UpdateCollectionItem } from '../../core/models/update-collection-item.model';
 
+type CropShape = 'rectangle' | 'circle';
+
 @Component({
   selector: 'app-collection',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, PercentPipe, KeyValuePipe, FormsModule, RouterLink],
+  imports: [DatePipe, DecimalPipe, PercentPipe, KeyValuePipe, FormsModule, RouterLink, ImageCropperComponent],
   templateUrl: './collection.component.html',
   styleUrl: './collection.component.css'
 })
@@ -56,6 +59,12 @@ export class CollectionComponent implements OnInit, OnDestroy {
   readonly isUpdatingImage = signal<boolean>(false);
   readonly newImagePreview = signal<string | null>(null);
   private newImageFile: Blob | null = null;
+
+  // Image cropping
+  readonly isCropping = signal<boolean>(false);
+  readonly cropImageSource = signal<string>('');
+  readonly cropShape = signal<CropShape>('rectangle');
+  readonly croppedImageBlob = signal<Blob | null>(null);
 
   // Search
   readonly searchQuery = signal<string>('');
@@ -276,17 +285,55 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   private handleNewImageSelected(file: File): void {
-    this.newImageFile = file;
     const reader = new FileReader();
     reader.onload = () => {
-      this.newImagePreview.set(reader.result as string);
+      this.cropImageSource.set(reader.result as string);
+      this.isCropping.set(true);
+      this.croppedImageBlob.set(null);
     };
     reader.readAsDataURL(file);
+  }
+
+  // Cropper methods
+  onImageCropped(event: ImageCroppedEvent): void {
+    if (event.blob) {
+      this.croppedImageBlob.set(event.blob);
+    }
+  }
+
+  onCropperReady(): void {
+    // Cropper is ready
+  }
+
+  onImageLoaded(image: LoadedImage): void {
+    // Image loaded successfully
+  }
+
+  onLoadImageFailed(): void {
+    this.error.set('Failed to load image. Please try again.');
+    this.cancelImageChange();
+  }
+
+  confirmImageCrop(): void {
+    const croppedBlob = this.croppedImageBlob();
+    if (croppedBlob) {
+      this.newImageFile = croppedBlob;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.newImagePreview.set(reader.result as string);
+      };
+      reader.readAsDataURL(croppedBlob);
+      this.isCropping.set(false);
+    }
   }
 
   cancelImageChange(): void {
     this.newImagePreview.set(null);
     this.newImageFile = null;
+    this.isCropping.set(false);
+    this.cropImageSource.set('');
+    this.croppedImageBlob.set(null);
+    this.cropShape.set('rectangle');
   }
 
   updateImage(): void {
