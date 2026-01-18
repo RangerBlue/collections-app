@@ -1,59 +1,111 @@
-# CollectionsApp
+# Collections App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+A modern, mobile-friendly web application for managing and showcasing your personal collections. Whether you collect bottle caps, stamps, coins, or any other items - this app helps you organize, track, and share your treasures.
 
-## Development server
+### [Try Collections App](https://collectionsapp-8e82a.web.app/)
 
-To start a local development server, run:
+---
+
+## Features
+
+**Organize Your Collections**
+- Create multiple collections for different types of items
+- Add items with photos, names, and descriptions
+- Tag items with custom attributes for easy filtering
+
+**Smart Image Handling**
+- Upload images or capture directly from your camera
+- Built-in image cropper with rectangle and circle modes
+- Transparent background support for circular crops
+
+**Search & Discovery**
+- Full-text search across your collection
+- Filter and browse items quickly
+- Check for duplicates before adding new items
+
+**Secure & Personal**
+- Google authentication for secure access
+- Your collections are private by default
+- Share specific collections publicly if you want
+
+**Mobile First**
+- Fully responsive design
+- Works great on phones, tablets, and desktops
+- Touch-friendly interface
+
+---
+
+## Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| **Angular 21** | Frontend framework with standalone components |
+| **TypeScript** | Type-safe development |
+| **Angular Signals** | Reactive state management |
+| **Firebase Hosting** | Fast, secure deployment |
+| **ngx-image-cropper** | Image manipulation |
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
-ng serve
+# Clone the repository
+git clone https://github.com/yourusername/collections-app.git
+
+# Navigate to project directory
+cd collections-app
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open [http://localhost:4200](http://localhost:4200) in your browser.
 
-## Code scaffolding
+### Available Scripts
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start development server with hot reload |
+| `npm run build` | Create production build |
+| `npm test` | Run unit tests with Vitest |
 
-```bash
-ng generate component component-name
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── core/           # Auth, guards, models
+│   ├── features/       # Main feature modules
+│   │   ├── collection/     # Collection management
+│   │   └── public-collection/
+│   ├── pages/          # Route pages (home, contact, login)
+│   └── shared/         # Shared components (navbar)
+├── environments/       # Environment configs
+└── styles.css          # Global styles
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
+## Author
 
-## Building
+**Kamil Machul** - Software Developer & Collector
 
-To build the project run:
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/kamil-machul/)
 
-```bash
-ng build
-```
+---
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## License
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is private. All rights reserved.
