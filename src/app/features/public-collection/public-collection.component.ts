@@ -22,7 +22,7 @@ export class PublicCollectionComponent implements OnInit, OnDestroy {
   readonly isLoading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
   readonly currentPage = signal<number>(0);
-  readonly pageSize = signal<number>(12);
+  readonly pageSize = signal<number>(35);
   readonly totalPages = signal<number>(0);
   readonly totalElements = signal<number>(0);
 

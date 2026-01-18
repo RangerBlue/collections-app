@@ -1,5 +1,5 @@
 .collection-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -295,12 +295,19 @@
   }
 
   .collection-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
   }
 
   .item-name {
     font-size: 1.1rem;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .collection-grid {
+    gap: 1.5rem;
   }
 }
 
