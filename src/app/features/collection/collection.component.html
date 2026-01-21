@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <!-- Search Bar -->
+    <!-- Search Bar and Sort Controls -->
     <div class="search-container">
       <div class="search-input-wrapper">
         <input
@@ -58,6 +58,16 @@
           </button>
         }
       </div>
+      <button
+        class="sort-btn"
+        (click)="toggleSortDirection()"
+        [title]="sortDirection() === 'asc' ? 'Oldest first' : 'Newest first'">
+        @if (sortDirection() === 'desc') {
+          Newest first ↓
+        } @else {
+          Oldest first ↑
+        }
+      </button>
     </div>
 
     @if (searchQuery()) {

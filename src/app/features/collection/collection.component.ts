@@ -39,7 +39,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
   readonly currentPage = signal<number>(0);
-  readonly pageSize = signal<number>(35);
+  readonly pageSize = signal<number>(30);
   readonly totalPages = signal<number>(0);
   readonly totalElements = signal<number>(0);
 
@@ -68,6 +68,9 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   // Search
   readonly searchQuery = signal<string>('');
+
+  // Sorting
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
   readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
   readonly hasPrevious = computed(() => this.currentPage() > 0);
@@ -129,8 +132,9 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     const query = this.searchQuery().trim() || undefined;
+    const sort = [`createdAt,${this.sortDirection()}`];
 
-    this.collectionService.getItems(collectionKey, this.currentPage(), this.pageSize(), query)
+    this.collectionService.getItems(collectionKey, this.currentPage(), this.pageSize(), query, sort)
       .subscribe({
         next: (response) => {
           this.items.set(response.content);
@@ -195,6 +199,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   clearSearch(): void {
     this.searchQuery.set('');
+    this.currentPage.set(0);
+    this.loadItems();
+  }
+
+  // Sorting methods
+  toggleSortDirection(): void {
+    this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
     this.currentPage.set(0);
     this.loadItems();
   }

@@ -120,12 +120,36 @@
   color: #6b7280;
 }
 
-/* Collection Grid - Responsive */
+/* Collection Grid - Responsive with even columns */
 .collection-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+@media (min-width: 480px) {
+  .collection-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .collection-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .collection-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .collection-grid {
+    grid-template-columns: repeat(10, 1fr);
+  }
 }
 
 .collection-item {
@@ -160,13 +184,13 @@
 }
 
 .item-details {
-  padding: 0.75rem;
+  padding: 0.5rem;
 }
 
 .item-name {
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   color: #1a1a2e;
-  margin: 0 0 0.25rem 0;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -287,13 +311,36 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Search */
+/* Search and Sort */
 .search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
 .search-input-wrapper {
   position: relative;
+  flex: 1;
+}
+
+/* Sort Button */
+.sort-btn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.sort-btn:hover {
+  background: #f9fafb;
+  border-color: #4285f4;
+  color: #4285f4;
 }
 
 .search-input {
@@ -368,17 +415,17 @@
     font-size: 1.75rem;
   }
 
-  .collection-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.25rem;
+  .search-container {
+    flex-direction: row;
+    align-items: center;
   }
 
   .item-details {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .item-name {
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -402,26 +449,8 @@
     font-size: 1rem;
   }
 
-  .collection-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.25rem;
-  }
-
   .item-name {
-    font-size: 1.1rem;
-  }
-
-  .item-description {
-    font-size: 0.9rem;
-  }
-
-  .item-date {
-    font-size: 0.8rem;
-  }
-
-  .tag {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
+    font-size: 0.85rem;
   }
 }
 
