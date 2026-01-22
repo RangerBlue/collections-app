@@ -64,6 +64,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   // Image cropping
   readonly isCropping = signal<boolean>(false);
   readonly cropImageSource = signal<string>('');
+  readonly cropImageFile = signal<File | undefined>(undefined);
   readonly cropShape = signal<CropShape>('rectangle');
   readonly croppedImageBlob = signal<Blob | null>(null);
 
@@ -301,20 +302,50 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   private handleNewImageSelected(file: File): void {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.cropImageSource.set(reader.result as string);
-      this.isCropping.set(true);
-      this.croppedImageBlob.set(null);
-    };
-    reader.readAsDataURL(file);
+    this.cropImageFile.set(file);
+    this.isCropping.set(true);
+    this.croppedImageBlob.set(null);
   }
 
   // Cropper methods
   onImageCropped(event: ImageCroppedEvent): void {
     if (event.blob) {
-      this.croppedImageBlob.set(event.blob);
+      if (this.cropShape() === 'circle') {
+        this.applyCircularMask(event.blob);
+      } else {
+        this.croppedImageBlob.set(event.blob);
+      }
     }
+  }
+
+  private applyCircularMask(blob: Blob): void {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const size = Math.min(img.width, img.height);
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Create circular clipping path
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
+      // Draw image centered
+      const offsetX = (img.width - size) / 2;
+      const offsetY = (img.height - size) / 2;
+      ctx.drawImage(img, -offsetX, -offsetY);
+
+      canvas.toBlob((maskedBlob) => {
+        if (maskedBlob) {
+          this.croppedImageBlob.set(maskedBlob);
+        }
+      }, 'image/png');
+    };
+    img.src = URL.createObjectURL(blob);
   }
 
   onCropperReady(): void {
@@ -348,6 +379,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.newImageFile = null;
     this.isCropping.set(false);
     this.cropImageSource.set('');
+    this.cropImageFile.set(undefined);
     this.croppedImageBlob.set(null);
     this.cropShape.set('rectangle');
   }

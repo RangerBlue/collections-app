@@ -29,6 +29,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
   // State signals
   readonly currentStep = signal<ComponentStep>('collection-selection');
   readonly imageSource = signal<string>('');
+  readonly imageFile = signal<File | undefined>(undefined);
   readonly croppedImage = signal<Blob | null>(null);
   readonly cropShape = signal<CropShape>('rectangle');
   readonly itemName = signal<string>('');
@@ -186,15 +187,8 @@ export class AddItemComponent implements OnInit, OnDestroy {
   }
 
   private handleFileSelected(file: File): void {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imageSource.set(reader.result as string);
-      this.currentStep.set('crop');
-    };
-    reader.onerror = () => {
-      this.error.set('Failed to read file. Please try again.');
-    };
-    reader.readAsDataURL(file);
+    this.imageFile.set(file);
+    this.currentStep.set('crop');
   }
 
   // Drag and drop handlers
@@ -264,11 +258,14 @@ export class AddItemComponent implements OnInit, OnDestroy {
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0);
 
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    this.imageSource.set(imageDataUrl);
-
-    this.stopCamera();
-    this.currentStep.set('crop');
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+        this.imageFile.set(file);
+        this.stopCamera();
+        this.currentStep.set('crop');
+      }
+    }, 'image/jpeg', 0.9);
   }
 
   stopCamera(): void {
@@ -282,8 +279,42 @@ export class AddItemComponent implements OnInit, OnDestroy {
   // Cropper methods
   onImageCropped(event: ImageCroppedEvent): void {
     if (event.blob) {
-      this.croppedImage.set(event.blob);
+      if (this.cropShape() === 'circle') {
+        this.applyCircularMask(event.blob);
+      } else {
+        this.croppedImage.set(event.blob);
+      }
     }
+  }
+
+  private applyCircularMask(blob: Blob): void {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const size = Math.min(img.width, img.height);
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Create circular clipping path
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
+      // Draw image centered
+      const offsetX = (img.width - size) / 2;
+      const offsetY = (img.height - size) / 2;
+      ctx.drawImage(img, -offsetX, -offsetY);
+
+      canvas.toBlob((maskedBlob) => {
+        if (maskedBlob) {
+          this.croppedImage.set(maskedBlob);
+        }
+      }, 'image/png');
+    };
+    img.src = URL.createObjectURL(blob);
   }
 
   onCropperReady(): void {
@@ -341,12 +372,14 @@ export class AddItemComponent implements OnInit, OnDestroy {
 
   retakePicture(): void {
     this.imageSource.set('');
+    this.imageFile.set(undefined);
     this.croppedImage.set(null);
     this.currentStep.set('source-selection');
   }
 
   goBackToCollectionSelection(): void {
     this.imageSource.set('');
+    this.imageFile.set(undefined);
     this.croppedImage.set(null);
     this.itemName.set('');
     this.customTags.set([]);
