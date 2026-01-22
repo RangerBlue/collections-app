@@ -38,6 +38,9 @@
             [class.active]="selectedCollectionKey() === collection.collectionKey"
             (click)="selectCollection(collection.collectionKey)">
             {{ collection.collectionName }}
+            @if (selectedCollectionKey() === collection.collectionKey && collectionTotalItems() > 0) {
+              <span class="collection-count">{{ collectionTotalItems() }}</span>
+            }
           </button>
         }
       </div>

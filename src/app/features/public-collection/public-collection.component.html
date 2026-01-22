@@ -1,7 +1,12 @@
 <div class="collection-container">
   <header class="collection-header">
     <div class="header-content">
-      <h1>Creator's Collection</h1>
+      <h1>
+        Creator's Collection
+        @if (collectionTotalItems() > 0) {
+          <span class="collection-count">{{ collectionTotalItems() }}</span>
+        }
+      </h1>
       <p class="subtitle">Browse the original bottle cap collection</p>
     </div>
   </header>

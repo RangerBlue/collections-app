@@ -22,9 +22,10 @@ export class PublicCollectionComponent implements OnInit, OnDestroy {
   readonly isLoading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
   readonly currentPage = signal<number>(0);
-  readonly pageSize = signal<number>(35);
+  readonly pageSize = signal<number>(30);
   readonly totalPages = signal<number>(0);
   readonly totalElements = signal<number>(0);
+  readonly collectionTotalItems = signal<number>(0);
 
   // Item detail modal
   readonly selectedItem = signal<CollectionItemResponse | null>(null);
@@ -69,6 +70,10 @@ export class PublicCollectionComponent implements OnInit, OnDestroy {
           this.items.set(response.content);
           this.totalPages.set(response.totalPages);
           this.totalElements.set(response.totalElements);
+          // Store unfiltered total when not searching
+          if (!query) {
+            this.collectionTotalItems.set(response.totalElements);
+          }
           this.isLoading.set(false);
         },
         error: (err) => {

@@ -77,6 +77,20 @@
         Collection: <strong>{{ isCreatingNew() ? newCollectionName() : selectedCollectionName() }}</strong>
       </div>
       <h2>Choose Image Source</h2>
+      @if (!isMobile()) {
+        <div
+          class="drop-zone"
+          [class.drop-zone-active]="isDragging()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)">
+          <span class="drop-zone-icon">📥</span>
+          <span class="drop-zone-text">Drop image here</span>
+        </div>
+        <div class="source-divider">
+          <span>or</span>
+        </div>
+      }
       <div class="source-options">
         @if (!isMobile()) {
           <button class="source-btn" (click)="selectCamera()">

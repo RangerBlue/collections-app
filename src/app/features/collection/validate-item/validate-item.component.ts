@@ -36,6 +36,9 @@ export class ValidateItemComponent implements OnInit, OnDestroy {
   // Mobile detection - hide camera option on mobile as file upload provides camera access
   readonly isMobile = signal<boolean>(this.detectMobile());
 
+  // Drag and drop state
+  readonly isDragging = signal<boolean>(false);
+
   private detectMobile(): boolean {
     const userAgent = navigator.userAgent || navigator.vendor;
     return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
@@ -155,6 +158,36 @@ export class ValidateItemComponent implements OnInit, OnDestroy {
       this.error.set('Failed to read file. Please try again.');
     };
     reader.readAsDataURL(file);
+  }
+
+  // Drag and drop handlers
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        this.error.set(null);
+        this.handleFileSelected(file);
+      } else {
+        this.error.set('Please drop an image file.');
+      }
+    }
   }
 
   // Camera methods

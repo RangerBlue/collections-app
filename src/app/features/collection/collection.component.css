@@ -311,6 +311,17 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.collection-count {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
 /* Search and Sort */
 .search-container {
   display: flex;
