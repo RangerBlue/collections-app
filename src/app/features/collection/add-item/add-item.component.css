@@ -330,15 +330,29 @@
 .cropper-wrapper {
   flex: 1;
   min-height: 200px;
-  max-height: 50vh;
-  overflow: hidden;
+  max-height: 60vh;
+  overflow: visible;
   border-radius: 8px;
   background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cropper-wrapper image-cropper {
   max-height: 100%;
+  max-width: 100%;
   display: block;
+}
+
+.cropper-wrapper ::ng-deep .ngx-ic-cropper {
+  max-height: 60vh !important;
+}
+
+.cropper-wrapper ::ng-deep .ngx-ic-source-image {
+  max-height: 60vh !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
 }
 
 .crop-actions {
@@ -691,7 +705,7 @@
 
   .cropper-wrapper {
     flex: none;
-    max-height: 50vh;
+    max-height: 60vh;
   }
 
   .image-preview img {
