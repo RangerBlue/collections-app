@@ -6,6 +6,8 @@ import { CollectionService } from '../collection.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { BlobToUrlPipe } from '../../../shared/pipes/blob-to-url.pipe';
 import { UserCollectionResponse } from '../../../core/models/collection-item.model';
+import { ItemIdentificationResponse, RateLimitInfo } from '../../../core/models/web-detection-response.model';
+import { ErrorResponse } from '../../../core/models/error-response.model';
 
 type CropShape = 'rectangle' | 'circle';
 type ComponentStep = 'collection-selection' | 'source-selection' | 'capture' | 'crop' | 'form';
@@ -43,6 +45,16 @@ export class AddItemComponent implements OnInit, OnDestroy {
 
   // Drag and drop state
   readonly isDragging = signal<boolean>(false);
+
+  // Detection state
+  readonly isDetecting = signal<boolean>(false);
+  readonly detectionResult = signal<ItemIdentificationResponse | null>(null);
+  readonly rateLimitInfo = signal<RateLimitInfo | null>(null);
+  readonly isRateLimited = signal<boolean>(false);
+
+  // Item limit state
+  readonly itemLimitExceeded = signal<boolean>(false);
+  readonly itemLimitInfo = signal<{ limit: number; used: number } | null>(null);
 
   private detectMobile(): boolean {
     const userAgent = navigator.userAgent || navigator.vendor;
@@ -336,6 +348,53 @@ export class AddItemComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Detection method
+  detectItem(): void {
+    const croppedBlob = this.croppedImage();
+    if (!croppedBlob) {
+      return;
+    }
+
+    this.isDetecting.set(true);
+    this.detectionResult.set(null);
+    this.error.set(null);
+    this.isRateLimited.set(false);
+
+    this.collectionService.identifyItem(croppedBlob).subscribe({
+      next: (response) => {
+        this.detectionResult.set(response);
+        if (response.rateLimit) {
+          this.rateLimitInfo.set(response.rateLimit);
+        }
+        this.isDetecting.set(false);
+      },
+      error: (err) => {
+        console.error('Detection error:', err);
+        if (err.status === 429) {
+          this.isRateLimited.set(true);
+          const errorResponse = err.error as ErrorResponse;
+          if (errorResponse?.error) {
+            this.rateLimitInfo.set({
+              limit: errorResponse.error.limit,
+              used: errorResponse.error.used,
+              remaining: errorResponse.error.remaining
+            });
+            this.error.set(errorResponse.error.message);
+          } else {
+            this.error.set('Daily identification limit exceeded. Please try again tomorrow.');
+          }
+        } else {
+          this.error.set('Failed to detect item. Please try again.');
+        }
+        this.isDetecting.set(false);
+      }
+    });
+  }
+
+  dismissDetectionResult(): void {
+    this.detectionResult.set(null);
+  }
+
   // Custom tags methods
   addCustomTag(): void {
     const key = this.newTagKey().trim();
@@ -374,6 +433,7 @@ export class AddItemComponent implements OnInit, OnDestroy {
     this.imageSource.set('');
     this.imageFile.set(undefined);
     this.croppedImage.set(null);
+    this.detectionResult.set(null);
     this.currentStep.set('source-selection');
   }
 
@@ -442,7 +502,21 @@ export class AddItemComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Add item error:', err);
-          this.error.set('Failed to add item. Please try again.');
+          if (err.status === 429) {
+            this.itemLimitExceeded.set(true);
+            const errorResponse = err.error as ErrorResponse;
+            if (errorResponse?.error) {
+              this.itemLimitInfo.set({
+                limit: errorResponse.error.limit,
+                used: errorResponse.error.used
+              });
+              this.error.set(errorResponse.error.message);
+            } else {
+              this.error.set('Item limit exceeded. You have reached the maximum number of items allowed.');
+            }
+          } else {
+            this.error.set('Failed to add item. Please try again.');
+          }
           this.isSubmitting.set(false);
         }
       });

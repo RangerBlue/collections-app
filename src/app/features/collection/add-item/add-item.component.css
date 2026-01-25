@@ -386,6 +386,197 @@
   border-radius: 50%;
 }
 
+/* Detection Section */
+.detect-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.btn-detect {
+  padding: 0.5rem 1rem;
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-detect:hover:not(:disabled) {
+  background: #d97706;
+}
+
+.btn-detect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.detect-hint {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* Rate Limit Info */
+.rate-limit-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #e0f2fe;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.rate-limit-label {
+  color: #0369a1;
+  font-weight: 500;
+}
+
+.rate-limit-value {
+  color: #0284c7;
+}
+
+.rate-limit-warning {
+  background: #fef3c7;
+}
+
+.rate-limit-warning .rate-limit-label {
+  color: #92400e;
+}
+
+.rate-limit-warning .rate-limit-value {
+  color: #b45309;
+}
+
+.rate-limit-exhausted {
+  background: #fee2e2;
+}
+
+.rate-limit-exhausted .rate-limit-label {
+  color: #991b1b;
+}
+
+.rate-limit-exhausted .rate-limit-value {
+  color: #dc2626;
+}
+
+/* Item Limit Warning */
+.item-limit-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.item-limit-warning .limit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #dc2626;
+  color: #fff;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.item-limit-warning .limit-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.item-limit-warning .limit-details strong {
+  color: #991b1b;
+  font-size: 0.95rem;
+}
+
+.item-limit-warning .limit-details span {
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+/* Detection Result */
+.detection-result {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.detection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.detection-header h3 {
+  margin: 0;
+  color: #92400e;
+  font-size: 0.95rem;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: #92400e;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  color: #78350f;
+}
+
+.detection-field {
+  margin-bottom: 0.5rem;
+  color: #78350f;
+  font-size: 0.9rem;
+}
+
+.detection-tags {
+  color: #78350f;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.detection-confidence {
+  color: #92400e;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.entity-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-left: 0.25rem;
+}
+
+.entity-tag {
+  background: #fde68a;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
 .form-group {
   margin-bottom: 1.25rem;
 }

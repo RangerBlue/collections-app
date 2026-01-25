@@ -6,6 +6,7 @@ import { CollectionItemResponse, PageCollectionItemSummary, UserCollectionRespon
 import { CreateCollectionItemRequest } from '../../core/models/create-collection-item.model';
 import { UpdateCollectionItem } from '../../core/models/update-collection-item.model';
 import { ValidateItemResponse } from '../../core/models/validate-item-response.model';
+import { ItemIdentificationResponse } from '../../core/models/web-detection-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -158,6 +159,21 @@ export class CollectionService {
   getAvailableTags(collectionKey: string): Observable<string[]> {
     return this.http.get<string[]>(
       `${this.baseUrl}/${collectionKey}/available-tags`,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json'
+        }
+      }
+    );
+  }
+
+  identifyItem(file: Blob): Observable<ItemIdentificationResponse> {
+    const formData = new FormData();
+    formData.append('file', file, 'image.jpg');
+
+    return this.http.post<ItemIdentificationResponse>(
+      `${this.baseUrl}/items/identify`,
+      formData,
       {
         headers: {
           'Accept': 'application/vnd.hal+json'

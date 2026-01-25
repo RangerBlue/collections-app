@@ -5,6 +5,9 @@ info:
 servers:
 - url: http://localhost:8080
   description: Generated server url
+tags:
+- name: Collection Items
+  description: Operations for managing collection items
 paths:
   /caps/{id}:
     get:
@@ -71,7 +74,7 @@ paths:
   /api/v1/collections/{collectionKey}/items/{id}:
     get:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: getItem
       parameters:
       - name: collectionKey
@@ -93,7 +96,7 @@ paths:
                 $ref: "#/components/schemas/CollectionItemResponse"
     put:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: updateItem
       parameters:
       - name: collectionKey
@@ -121,7 +124,7 @@ paths:
                 $ref: "#/components/schemas/CollectionItemResponse"
     delete:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: deleteItem
       parameters:
       - name: collectionKey
@@ -140,7 +143,7 @@ paths:
   /api/v1/collections/{collectionKey}/items/{id}/image:
     put:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: updateImage
       parameters:
       - name: collectionKey
@@ -269,7 +272,7 @@ paths:
   /api/v1/collections/{collectionKey}/items:
     get:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: getItems
       parameters:
       - name: collectionKey
@@ -296,7 +299,9 @@ paths:
                 $ref: "#/components/schemas/PageCollectionItemSummary"
     post:
       tags:
-      - collection-item-controller
+      - Collection Items
+      summary: Create a new collection item
+      description: Creates a new item in the specified collection with an image file
       operationId: createItem
       parameters:
       - name: collectionKey
@@ -319,16 +324,32 @@ paths:
               - file
               - request
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Item created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CollectionItemResponse"
+        "429":
+          description: Item limit exceeded
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 429
+                error:
+                  message: "Item limit exceeded. You have 100 items, maximum allowed\
+                    \ is 100."
+                  limitType: items
+                  limit: 100
+                  used: 100
+                  remaining: 0
   /api/v1/collections/{collectionKey}/items/validate:
     post:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: validateItem
       parameters:
       - name: collectionKey
@@ -354,6 +375,48 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ValidateItemResponse"
+  /api/v1/collections/items/identify:
+    post:
+      tags:
+      - Collection Items
+      summary: Identify an item using AI
+      description: "Uses Gemini Vision AI to identify an item from an uploaded image.\
+        \ Rate-limited: USER role has daily limits, ADMIN has unlimited access."
+      operationId: identifyItem
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: Item identified successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ItemIdentificationResponse"
+        "429":
+          description: Daily identification limit exceeded
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 429
+                error:
+                  message: Daily identification limit exceeded. Used 20 of 20 allowed
+                    calls.
+                  limitType: identification
+                  limit: 20
+                  used: 20
+                  remaining: 0
   /links:
     get:
       tags:
@@ -513,7 +576,7 @@ paths:
   /api/v1/collections:
     get:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: getUserCollections
       responses:
         "200":
@@ -527,7 +590,7 @@ paths:
   /api/v1/collections/{collectionKey}/available-tags:
     get:
       tags:
-      - collection-item-controller
+      - Collection Items
       operationId: getAvailableTags
       parameters:
       - name: collectionKey
@@ -737,6 +800,23 @@ components:
           type: string
       required:
       - name
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the error occurred
+          example: 2026-01-25T12:00:00Z
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+          example: 429
+        error:
+          description: "Error details. For rate limit errors contains: message, limitType,\
+            \ limit, used, remaining"
     SimilarItem:
       type: object
       properties:
@@ -758,6 +838,63 @@ components:
             $ref: "#/components/schemas/SimilarItem"
         hasSimilarItems:
           type: boolean
+    ItemIdentificationResponse:
+      type: object
+      description: AI-powered item identification response
+      properties:
+        primaryName:
+          type: string
+          description: Primary name identified for the item
+          example: Heineken Bottle Cap
+        brand:
+          type: string
+          description: Brand name if identified
+          example: Heineken
+        category:
+          type: string
+          description: Category of the item
+          example: Beer Bottle Cap
+        description:
+          type: string
+          description: Detailed description of the item
+        suggestedTags:
+          type: array
+          description: Suggested tags for the item
+          example:
+          - beer
+          - green
+          - dutch
+          items:
+            type: string
+        confidence:
+          type: number
+          format: double
+          description: Confidence score of the identification (0.0 - 1.0)
+          example: 0.95
+        rateLimit:
+          $ref: "#/components/schemas/RateLimitInfo"
+          description: Rate limit information for the current user. Shows daily usage
+            and remaining quota.
+    RateLimitInfo:
+      type: object
+      description: Rate limit information for the current user
+      properties:
+        limit:
+          type: integer
+          format: int32
+          description: Maximum number of calls allowed per day. -1 indicates unlimited
+            (ADMIN role)
+          example: 20
+        used:
+          type: integer
+          format: int32
+          description: Number of calls already used today
+          example: 5
+        remaining:
+          type: integer
+          format: int32
+          description: Remaining calls for today. -1 indicates unlimited (ADMIN role)
+          example: 15
     CapPictureDto:
       type: object
       properties:
@@ -834,10 +971,10 @@ components:
     PageableObject:
       type: object
       properties:
-        pageNumber:
+        pageSize:
           type: integer
           format: int32
-        pageSize:
+        pageNumber:
           type: integer
           format: int32
         unpaged:
@@ -852,9 +989,9 @@ components:
     SortObject:
       type: object
       properties:
-        unsorted:
-          type: boolean
         sorted:
+          type: boolean
+        unsorted:
           type: boolean
         empty:
           type: boolean

@@ -6,6 +6,8 @@ import { CollectionService } from '../collection.service';
 import { BlobToUrlPipe } from '../../../shared/pipes/blob-to-url.pipe';
 import { SimilarItem } from '../../../core/models/validate-item-response.model';
 import { UserCollectionResponse } from '../../../core/models/collection-item.model';
+import { ItemIdentificationResponse, RateLimitInfo } from '../../../core/models/web-detection-response.model';
+import { ErrorResponse } from '../../../core/models/error-response.model';
 
 type CropShape = 'rectangle' | 'circle';
 type ComponentStep = 'collection-selection' | 'source-selection' | 'capture' | 'crop' | 'validating' | 'results';
@@ -62,6 +64,12 @@ export class ValidateItemComponent implements OnInit, OnDestroy {
   // Validation results
   readonly similarItems = signal<SimilarItem[]>([]);
   readonly hasSimilarItems = signal<boolean>(false);
+
+  // Detection state
+  readonly isDetecting = signal<boolean>(false);
+  readonly detectionResult = signal<ItemIdentificationResponse | null>(null);
+  readonly rateLimitInfo = signal<RateLimitInfo | null>(null);
+  readonly isRateLimited = signal<boolean>(false);
 
   private mediaStream: MediaStream | null = null;
 
@@ -351,7 +359,55 @@ export class ValidateItemComponent implements OnInit, OnDestroy {
     this.croppedImage.set(null);
     this.similarItems.set([]);
     this.hasSimilarItems.set(false);
+    this.detectionResult.set(null);
     this.currentStep.set('source-selection');
+  }
+
+  // Detection method
+  detectItem(): void {
+    const croppedBlob = this.croppedImage();
+    if (!croppedBlob) {
+      return;
+    }
+
+    this.isDetecting.set(true);
+    this.detectionResult.set(null);
+    this.error.set(null);
+    this.isRateLimited.set(false);
+
+    this.collectionService.identifyItem(croppedBlob).subscribe({
+      next: (response) => {
+        this.detectionResult.set(response);
+        if (response.rateLimit) {
+          this.rateLimitInfo.set(response.rateLimit);
+        }
+        this.isDetecting.set(false);
+      },
+      error: (err) => {
+        console.error('Detection error:', err);
+        if (err.status === 429) {
+          this.isRateLimited.set(true);
+          const errorResponse = err.error as ErrorResponse;
+          if (errorResponse?.error) {
+            this.rateLimitInfo.set({
+              limit: errorResponse.error.limit,
+              used: errorResponse.error.used,
+              remaining: errorResponse.error.remaining
+            });
+            this.error.set(errorResponse.error.message);
+          } else {
+            this.error.set('Daily identification limit exceeded. Please try again tomorrow.');
+          }
+        } else {
+          this.error.set('Failed to detect item. Please try again.');
+        }
+        this.isDetecting.set(false);
+      }
+    });
+  }
+
+  dismissDetectionResult(): void {
+    this.detectionResult.set(null);
   }
 
   cancel(): void {

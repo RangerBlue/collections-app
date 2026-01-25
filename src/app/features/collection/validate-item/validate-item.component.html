@@ -205,6 +205,72 @@
             alt="Checked image"
             [class.circle]="cropShape() === 'circle'" />
         </div>
+
+        <div class="detect-section">
+          <button
+            type="button"
+            class="btn btn-detect"
+            (click)="detectItem()"
+            [disabled]="isDetecting() || isRateLimited()">
+            @if (isDetecting()) {
+              Detecting...
+            } @else {
+              Detect
+            }
+          </button>
+          <span class="detect-hint">Identify what's in the picture</span>
+        </div>
+
+        @if (rateLimitInfo(); as rateLimit) {
+          <div class="rate-limit-info" [class.rate-limit-warning]="rateLimit.remaining <= 2" [class.rate-limit-exhausted]="rateLimit.remaining === 0">
+            <span class="rate-limit-label">API calls:</span>
+            <span class="rate-limit-value">{{ rateLimit.remaining }}/{{ rateLimit.limit }} remaining</span>
+          </div>
+        }
+
+        @if (detectionResult(); as result) {
+          <div class="detection-result">
+            <div class="detection-header">
+              <h3>Detection Result</h3>
+              <button type="button" class="btn-close" (click)="dismissDetectionResult()">&times;</button>
+            </div>
+            @if (result.primaryName) {
+              <div class="detection-field">
+                <strong>Name:</strong> {{ result.primaryName }}
+              </div>
+            }
+            @if (result.brand) {
+              <div class="detection-field">
+                <strong>Brand:</strong> {{ result.brand }}
+              </div>
+            }
+            @if (result.category) {
+              <div class="detection-field">
+                <strong>Category:</strong> {{ result.category }}
+              </div>
+            }
+            @if (result.description) {
+              <div class="detection-field">
+                <strong>Description:</strong> {{ result.description }}
+              </div>
+            }
+            @if (result.suggestedTags && result.suggestedTags.length > 0) {
+              <div class="detection-tags">
+                <strong>Suggested tags:</strong>
+                <span class="entity-tags">
+                  @for (tag of result.suggestedTags; track tag) {
+                    <span class="entity-tag">{{ tag }}</span>
+                  }
+                </span>
+              </div>
+            }
+            @if (result.confidence) {
+              <div class="detection-confidence">
+                Confidence: {{ (result.confidence * 100).toFixed(0) }}%
+              </div>
+            }
+          </div>
+        }
       }
 
       @if (!hasSimilarItems()) {
