@@ -846,14 +846,18 @@ components:
           type: string
           description: Primary name identified for the item
           example: Heineken Bottle Cap
-        brand:
+        company:
           type: string
-          description: Brand name if identified
-          example: Heineken
+          description: "Company that produces the item (e.g., brewery for beer caps)"
+          example: Heineken N.V.
+        country:
+          type: string
+          description: Country of origin where the company is based
+          example: Netherlands
         category:
           type: string
           description: Category of the item
-          example: Beer Bottle Cap
+          example: Beer
         description:
           type: string
           description: Detailed description of the item
@@ -945,15 +949,6 @@ components:
         totalPages:
           type: integer
           format: int32
-        first:
-          type: boolean
-        last:
-          type: boolean
-        numberOfElements:
-          type: integer
-          format: int32
-        pageable:
-          $ref: "#/components/schemas/PageableObject"
         size:
           type: integer
           format: int32
@@ -966,34 +961,43 @@ components:
           format: int32
         sort:
           $ref: "#/components/schemas/SortObject"
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: "#/components/schemas/PageableObject"
         empty:
           type: boolean
     PageableObject:
       type: object
       properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: "#/components/schemas/SortObject"
         pageSize:
           type: integer
           format: int32
         pageNumber:
           type: integer
           format: int32
-        unpaged:
-          type: boolean
         paged:
           type: boolean
-        offset:
-          type: integer
-          format: int64
-        sort:
-          $ref: "#/components/schemas/SortObject"
+        unpaged:
+          type: boolean
     SortObject:
       type: object
       properties:
+        empty:
+          type: boolean
         sorted:
           type: boolean
         unsorted:
-          type: boolean
-        empty:
           type: boolean
     UserCollectionResponse:
       type: object

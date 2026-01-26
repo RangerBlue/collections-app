@@ -214,10 +214,12 @@
         </div>
 
         @if (rateLimitInfo(); as rateLimit) {
-          <div class="rate-limit-info" [class.rate-limit-warning]="rateLimit.remaining <= 2" [class.rate-limit-exhausted]="rateLimit.remaining === 0">
-            <span class="rate-limit-label">API calls:</span>
-            <span class="rate-limit-value">{{ rateLimit.remaining }}/{{ rateLimit.limit }} remaining</span>
-          </div>
+          @if (rateLimit.remaining !== -1) {
+            <div class="rate-limit-info" [class.rate-limit-warning]="rateLimit.remaining <= 2" [class.rate-limit-exhausted]="rateLimit.remaining === 0">
+              <span class="rate-limit-label">Detections remaining:</span>
+              <span class="rate-limit-value">{{ rateLimit.remaining }} of {{ rateLimit.limit }}</span>
+            </div>
+          }
         }
 
         @if (detectionResult(); as result) {
@@ -231,9 +233,14 @@
                 <strong>Name:</strong> {{ result.primaryName }}
               </div>
             }
-            @if (result.brand) {
+            @if (result.company) {
               <div class="detection-field">
-                <strong>Brand:</strong> {{ result.brand }}
+                <strong>Company:</strong> {{ result.company }}
+              </div>
+            }
+            @if (result.country) {
+              <div class="detection-field">
+                <strong>Country:</strong> {{ result.country }}
               </div>
             }
             @if (result.category) {

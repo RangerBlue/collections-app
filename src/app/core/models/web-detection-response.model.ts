@@ -6,7 +6,8 @@ export interface RateLimitInfo {
 
 export interface ItemIdentificationResponse {
   primaryName: string;
-  brand: string;
+  company: string;
+  country: string;
   category: string;
   description: string;
   suggestedTags: string[];
