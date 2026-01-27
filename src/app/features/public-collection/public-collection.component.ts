@@ -34,6 +34,9 @@ export class PublicCollectionComponent implements OnInit, OnDestroy {
   // Search
   readonly searchQuery = signal<string>('');
 
+  // Sorting
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
   readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
   readonly hasPrevious = computed(() => this.currentPage() > 0);
 
@@ -63,8 +66,9 @@ export class PublicCollectionComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     const query = this.searchQuery().trim() || undefined;
+    const sort = [`createdAt,${this.sortDirection()}`];
 
-    this.publicCollectionService.getItems(this.currentPage(), this.pageSize(), query)
+    this.publicCollectionService.getItems(this.currentPage(), this.pageSize(), query, sort)
       .subscribe({
         next: (response) => {
           this.items.set(response.content);
@@ -133,6 +137,13 @@ export class PublicCollectionComponent implements OnInit, OnDestroy {
 
   clearSearch(): void {
     this.searchQuery.set('');
+    this.currentPage.set(0);
+    this.loadItems();
+  }
+
+  // Sorting methods
+  toggleSortDirection(): void {
+    this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
     this.currentPage.set(0);
     this.loadItems();
   }

@@ -348,6 +348,16 @@ export class AddItemComponent implements OnInit, OnDestroy {
     }
   }
 
+  cutImage(): void {
+    const croppedBlob = this.croppedImage();
+    if (croppedBlob) {
+      // Convert cropped blob to File and set as new source for further cropping
+      const file = new File([croppedBlob], 'cropped-image.png', { type: croppedBlob.type });
+      this.imageFile.set(file);
+      this.croppedImage.set(null);
+    }
+  }
+
   // Detection method
   detectItem(): void {
     const croppedBlob = this.croppedImage();
