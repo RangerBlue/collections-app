@@ -75,11 +75,15 @@
         @for (item of items(); track item.id) {
           <div class="collection-item" (click)="openItemDetail(item)">
             @if (item.signedUrl) {
-              <img
-                [src]="item.signedUrl"
-                [alt]="item.name"
-                class="item-image"
-              />
+              <div class="image-wrapper">
+                <div class="image-spinner"></div>
+                <img
+                  [src]="item.signedUrl"
+                  [alt]="item.name"
+                  class="item-image"
+                  (load)="$event.target.classList.add('loaded')"
+                />
+              </div>
             } @else {
               <div class="item-image-placeholder">
                 <span>No Image</span>
