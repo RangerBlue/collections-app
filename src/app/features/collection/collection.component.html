@@ -5,15 +5,37 @@
       <p class="subtitle">Browse through your unique collection</p>
     </div>
     <div class="header-actions">
-      @if (selectedCollectionKey()) {
-        <a routerLink="/collection/validate" [queryParams]="{collection: selectedCollectionKey()}" class="btn btn-check">Check Item</a>
-        <a routerLink="/collection/add" [queryParams]="{collection: selectedCollectionKey()}" class="btn btn-add">+ Add Item</a>
-      } @else {
-        <a routerLink="/collection/validate" class="btn btn-check">Check Item</a>
-        <a routerLink="/collection/add" class="btn btn-add">+ Add Item</a>
+      @if (collectionViewMode() === 'owned') {
+        @if (selectedCollectionKey()) {
+          <button class="btn btn-share" (click)="openShareModal()">Share Collection</button>
+          <a routerLink="/collection/validate" [queryParams]="{collection: selectedCollectionKey()}" class="btn btn-check">Check Item</a>
+          <a routerLink="/collection/add" [queryParams]="{collection: selectedCollectionKey()}" class="btn btn-add">+ Add Item</a>
+        } @else {
+          <a routerLink="/collection/validate" class="btn btn-check">Check Item</a>
+          <a routerLink="/collection/add" class="btn btn-add">+ Add Item</a>
+        }
       }
     </div>
   </header>
+
+  <!-- View Mode Toggle -->
+  <div class="view-mode-toggle">
+    <button
+      class="view-mode-btn"
+      [class.active]="collectionViewMode() === 'owned'"
+      (click)="switchToOwned()">
+      My Collections
+    </button>
+    <button
+      class="view-mode-btn"
+      [class.active]="collectionViewMode() === 'shared'"
+      (click)="switchToShared()">
+      Shared With Me
+      @if (sharedWithMeCollections().length > 0) {
+        <span class="shared-count-badge">{{ sharedWithMeCollections().length }}</span>
+      }
+    </button>
+  </div>
 
   @if (error()) {
     <div class="error-container">
@@ -29,63 +51,133 @@
     </div>
   }
 
-  @if (!isLoadingCollections() && !error() && collections().length > 0) {
-    <div class="collection-selector">
-      <div class="collection-tabs">
-        @for (collection of collections(); track collection.collectionKey) {
-          <button
-            class="collection-tab"
-            [class.active]="selectedCollectionKey() === collection.collectionKey"
-            (click)="selectCollection(collection.collectionKey)">
-            {{ collection.collectionName }}
-            @if (selectedCollectionKey() === collection.collectionKey && collectionTotalItems() > 0) {
-              <span class="collection-count">{{ collectionTotalItems() }}</span>
-            }
-          </button>
-        }
+  @if (collectionViewMode() === 'owned') {
+    @if (!isLoadingCollections() && !error() && collections().length > 0) {
+      <div class="collection-selector">
+        <div class="collection-tabs">
+          @for (collection of collections(); track collection.collectionKey) {
+            <button
+              class="collection-tab"
+              [class.active]="selectedCollectionKey() === collection.collectionKey"
+              (click)="selectCollection(collection.collectionKey)">
+              {{ collection.collectionName }}
+              @if (selectedCollectionKey() === collection.collectionKey && collectionTotalItems() > 0) {
+                <span class="collection-count">{{ collectionTotalItems() }}</span>
+              }
+            </button>
+          }
+        </div>
       </div>
-    </div>
 
-    <!-- Search Bar and Sort Controls -->
-    <div class="search-container">
-      <div class="search-input-wrapper">
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Search items by name..."
-          [ngModel]="searchQuery()"
-          (ngModelChange)="onSearchInput($event)" />
-        @if (searchQuery()) {
-          <button class="search-clear-btn" (click)="clearSearch()">
-            &times;
-          </button>
-        }
+      <!-- Search Bar and Sort Controls -->
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search items by name..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchInput($event)" />
+          @if (searchQuery()) {
+            <button class="search-clear-btn" (click)="clearSearch()">
+              &times;
+            </button>
+          }
+        </div>
+        <button
+          class="sort-btn"
+          (click)="toggleSortDirection()"
+          [title]="sortDirection() === 'asc' ? 'Oldest first' : 'Newest first'">
+          @if (sortDirection() === 'desc') {
+            Newest first ↓
+          } @else {
+            Oldest first ↑
+          }
+        </button>
       </div>
-      <button
-        class="sort-btn"
-        (click)="toggleSortDirection()"
-        [title]="sortDirection() === 'asc' ? 'Oldest first' : 'Newest first'">
-        @if (sortDirection() === 'desc') {
-          Newest first ↓
-        } @else {
-          Oldest first ↑
-        }
-      </button>
-    </div>
 
-    @if (searchQuery()) {
-      <div class="search-results-info">
-        <span>Search results for "{{ searchQuery() }}" ({{ totalElements() }} found)</span>
-        <button class="btn-link" (click)="clearSearch()">Clear search</button>
+      @if (searchQuery()) {
+        <div class="search-results-info">
+          <span>Search results for "{{ searchQuery() }}" ({{ totalElements() }} found)</span>
+          <button class="btn-link" (click)="clearSearch()">Clear search</button>
+        </div>
+      }
+    }
+
+    @if (!isLoadingCollections() && !error() && collections().length === 0) {
+      <div class="empty-state">
+        <h2>No collections yet</h2>
+        <p>You don't have any collections. Create one by adding an item!</p>
       </div>
     }
   }
 
-  @if (!isLoadingCollections() && !error() && collections().length === 0) {
-    <div class="empty-state">
-      <h2>No collections yet</h2>
-      <p>You don't have any collections. Create one by adding an item!</p>
-    </div>
+  @if (collectionViewMode() === 'shared') {
+    @if (isLoadingSharedWithMe()) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading shared collections...</p>
+      </div>
+    }
+
+    @if (!isLoadingSharedWithMe() && !error() && sharedWithMeCollections().length > 0) {
+      <div class="collection-selector">
+        <div class="shared-collection-tabs">
+          @for (collection of sharedWithMeCollections(); track collection.collectionKey) {
+            <button
+              class="collection-tab shared-tab"
+              [class.active]="selectedSharedCollection()?.collectionKey === collection.collectionKey"
+              (click)="selectSharedCollection(collection)">
+              <span class="shared-collection-name">{{ collection.collectionName }}</span>
+              <span class="owner-name">by {{ collection.ownerName }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Search Bar and Sort Controls for shared collections -->
+      @if (selectedSharedCollection()) {
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search items by name..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearchInput($event)" />
+            @if (searchQuery()) {
+              <button class="search-clear-btn" (click)="clearSearch()">
+                &times;
+              </button>
+            }
+          </div>
+          <button
+            class="sort-btn"
+            (click)="toggleSortDirection()"
+            [title]="sortDirection() === 'asc' ? 'Oldest first' : 'Newest first'">
+            @if (sortDirection() === 'desc') {
+              Newest first ↓
+            } @else {
+              Oldest first ↑
+            }
+          </button>
+        </div>
+
+        @if (searchQuery()) {
+          <div class="search-results-info">
+            <span>Search results for "{{ searchQuery() }}" ({{ totalElements() }} found)</span>
+            <button class="btn-link" (click)="clearSearch()">Clear search</button>
+          </div>
+        }
+      }
+    }
+
+    @if (!isLoadingSharedWithMe() && !error() && sharedWithMeCollections().length === 0) {
+      <div class="empty-state">
+        <h2>No shared collections</h2>
+        <p>No one has shared any collections with you yet.</p>
+      </div>
+    }
   }
 
   @if (isLoading()) {
@@ -217,18 +309,22 @@
               @if (item.image && item.image.signedUrl) {
                 <img [src]="item.image.signedUrl" [alt]="item.name" class="modal-image" />
               }
-              <button class="btn-change-image" (click)="selectNewImage()">Change Image</button>
+              @if (collectionViewMode() === 'owned') {
+                <button class="btn-change-image" (click)="selectNewImage()">Change Image</button>
+              }
             </div>
           }
           <h2 class="modal-title">{{ item.name }}</h2>
         </div>
 
         <div class="modal-body">
-          <!-- Action Buttons -->
-          <div class="modal-actions">
-            <button class="btn btn-edit" (click)="enterEditMode()">Edit Item</button>
-            <button class="btn btn-delete" (click)="deleteItem()">Delete</button>
-          </div>
+          <!-- Action Buttons (only for owned collections) -->
+          @if (collectionViewMode() === 'owned') {
+            <div class="modal-actions">
+              <button class="btn btn-edit" (click)="enterEditMode()">Edit Item</button>
+              <button class="btn btn-delete" (click)="deleteItem()">Delete</button>
+            </div>
+          }
 
           <!-- Basic Info -->
           <div class="detail-section">
@@ -441,6 +537,91 @@
           </div>
         </div>
       }
+    </div>
+  </div>
+}
+
+<!-- Share Modal -->
+@if (isShareModalOpen()) {
+  <div class="modal-overlay" (click)="closeShareModal()">
+    <div class="share-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeShareModal()">&times;</button>
+
+      <div class="share-modal-header">
+        <h2 class="modal-title">Share Collection</h2>
+        <p class="share-modal-subtitle">Share "{{ selectedCollectionName() }}" with others</p>
+      </div>
+
+      <div class="share-modal-body">
+        <!-- Share Input -->
+        <div class="share-input-row">
+          <input
+            type="email"
+            class="form-input share-email-input"
+            placeholder="Enter email address"
+            [ngModel]="shareEmail()"
+            (ngModelChange)="shareEmail.set($event)"
+            (keyup.enter)="shareCollection()" />
+          <button
+            class="btn btn-share-action"
+            (click)="shareCollection()"
+            [disabled]="isSharing() || !shareEmail().trim()">
+            @if (isSharing()) { Sharing... } @else { Share }
+          </button>
+        </div>
+
+        <!-- Messages -->
+        @if (shareError()) {
+          <div class="share-message share-message-error">
+            {{ shareError() }}
+          </div>
+        }
+
+        @if (shareSuccess()) {
+          <div class="share-message share-message-success">
+            {{ shareSuccess() }}
+          </div>
+        }
+
+        <!-- Current Shares List -->
+        <div class="shares-section">
+          <h3 class="shares-section-title">People with access</h3>
+
+          @if (isLoadingShares()) {
+            <div class="shares-loading">
+              <div class="spinner-small"></div>
+              <span>Loading...</span>
+            </div>
+          }
+
+          @if (!isLoadingShares() && collectionShares().length === 0) {
+            <p class="shares-empty">No one else has access to this collection yet.</p>
+          }
+
+          @if (!isLoadingShares() && collectionShares().length > 0) {
+            <div class="shares-list">
+              @for (share of collectionShares(); track share.userId) {
+                <div class="share-entry">
+                  <div class="share-entry-info">
+                    <span class="share-entry-email">{{ share.email }}</span>
+                    <span class="share-entry-date">Shared {{ share.sharedAt | date:'mediumDate' }}</span>
+                  </div>
+                  <button
+                    class="btn-revoke"
+                    (click)="revokeShare(share.userId)"
+                    [disabled]="isRevokingShare() === share.userId">
+                    @if (isRevokingShare() === share.userId) {
+                      Revoking...
+                    } @else {
+                      Revoke
+                    }
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
     </div>
   </div>
 }

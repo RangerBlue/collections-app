@@ -8,6 +8,8 @@ servers:
 tags:
 - name: Collection Items
   description: Operations for managing collection items
+- name: Collection Sharing
+  description: Operations for sharing collections between users
 paths:
   /caps/{id}:
     get:
@@ -75,6 +77,9 @@ paths:
     get:
       tags:
       - Collection Items
+      summary: Get a collection item
+      description: Gets a specific item from a collection. Works for both owned collections
+        and collections shared with the user.
       operationId: getItem
       parameters:
       - name: collectionKey
@@ -89,11 +94,28 @@ paths:
           type: string
       responses:
         "200":
-          description: OK
+          description: Item retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CollectionItemResponse"
+        "403":
+          description: Access denied - user does not own the collection and it is
+            not shared with them
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 403
+                error: You do not have access to this collection
+        "404":
+          description: Item not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     put:
       tags:
       - Collection Items
@@ -269,10 +291,82 @@ paths:
             '*/*':
               schema:
                 type: string
+  /api/v1/collections/{collectionKey}/shares:
+    get:
+      tags:
+      - Collection Sharing
+      summary: List shares for a collection
+      description: Get all users a collection is shared with. Only the collection
+        owner can view shares.
+      operationId: getCollectionShares
+      parameters:
+      - name: collectionKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Shares retrieved successfully
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionShareResponse"
+        "403":
+          description: Access denied - user does not own the collection
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 403
+                error: You do not own this collection
+    post:
+      tags:
+      - Collection Sharing
+      summary: Share a collection
+      description: Share a collection with another user by email. Only the collection
+        owner can share it.
+      operationId: shareCollection
+      parameters:
+      - name: collectionKey
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShareCollectionRequest"
+        required: true
+      responses:
+        "201":
+          description: Share request processed
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ShareCollectionResponse"
+        "403":
+          description: Access denied - user does not own the collection
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 403
+                error: You do not own this collection
   /api/v1/collections/{collectionKey}/items:
     get:
       tags:
       - Collection Items
+      summary: Get collection items
+      description: Gets paginated items from a collection with optional search. Works
+        for both owned collections and collections shared with the user.
       operationId: getItems
       parameters:
       - name: collectionKey
@@ -292,11 +386,22 @@ paths:
           $ref: "#/components/schemas/Pageable"
       responses:
         "200":
-          description: OK
+          description: Items retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PageCollectionItemSummary"
+        "403":
+          description: Access denied - user does not own the collection and it is
+            not shared with them
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 403
+                error: You do not have access to this collection
     post:
       tags:
       - Collection Items
@@ -607,6 +712,54 @@ paths:
                 type: array
                 items:
                   type: string
+  /api/v1/collections/shared-with-me:
+    get:
+      tags:
+      - Collection Sharing
+      summary: Get collections shared with me
+      description: Get all collections that have been shared with the current user
+      operationId: getSharedWithMeCollections
+      responses:
+        "200":
+          description: Shared collections retrieved successfully
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharedCollectionResponse"
+  /api/v1/collections/{collectionKey}/shares/{targetUserId}:
+    delete:
+      tags:
+      - Collection Sharing
+      summary: Revoke a share
+      description: Revoke access to a collection from a user. Only the collection
+        owner can revoke shares.
+      operationId: revokeShare
+      parameters:
+      - name: collectionKey
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: targetUserId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Share revoked successfully
+        "403":
+          description: Access denied - user does not own the collection
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                timestamp: 2026-01-25T12:00:00Z
+                status: 403
+                error: You do not own this collection
 components:
   schemas:
     BottleCapDto:
@@ -780,6 +933,39 @@ components:
             format: int32
         duplicate:
           type: boolean
+    ShareCollectionRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    ShareCollectionResponse:
+      type: object
+      properties:
+        shared:
+          type: boolean
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the error occurred
+          example: 2026-01-25T12:00:00Z
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+          example: 429
+        error:
+          description: "Error details. For rate limit errors contains: message, limitType,\
+            \ limit, used, remaining"
     CreateCollectionItemRequest:
       type: object
       properties:
@@ -800,23 +986,6 @@ components:
           type: string
       required:
       - name
-    ErrorResponse:
-      type: object
-      description: Standard error response
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-          description: Timestamp when the error occurred
-          example: 2026-01-25T12:00:00Z
-        status:
-          type: integer
-          format: int32
-          description: HTTP status code
-          example: 429
-        error:
-          description: "Error details. For rate limit errors contains: message, limitType,\
-            \ limit, used, remaining"
     SimilarItem:
       type: object
       properties:
@@ -943,12 +1112,21 @@ components:
     PageCollectionItemSummary:
       type: object
       properties:
-        totalElements:
-          type: integer
-          format: int64
         totalPages:
           type: integer
           format: int32
+        totalElements:
+          type: integer
+          format: int64
+        numberOfElements:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        last:
+          type: boolean
+        pageable:
+          $ref: "#/components/schemas/PageableObject"
         size:
           type: integer
           format: int32
@@ -961,43 +1139,34 @@ components:
           format: int32
         sort:
           $ref: "#/components/schemas/SortObject"
-        first:
-          type: boolean
-        last:
-          type: boolean
-        numberOfElements:
-          type: integer
-          format: int32
-        pageable:
-          $ref: "#/components/schemas/PageableObject"
         empty:
           type: boolean
     PageableObject:
       type: object
       properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        unpaged:
+          type: boolean
+        paged:
+          type: boolean
         offset:
           type: integer
           format: int64
         sort:
           $ref: "#/components/schemas/SortObject"
-        pageSize:
-          type: integer
-          format: int32
-        pageNumber:
-          type: integer
-          format: int32
-        paged:
-          type: boolean
-        unpaged:
-          type: boolean
     SortObject:
       type: object
       properties:
-        empty:
+        unsorted:
           type: boolean
         sorted:
           type: boolean
-        unsorted:
+        empty:
           type: boolean
     UserCollectionResponse:
       type: object
@@ -1006,3 +1175,27 @@ components:
           type: string
         collectionName:
           type: string
+    CollectionShareResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        email:
+          type: string
+        sharedAt:
+          type: string
+          format: date-time
+    SharedCollectionResponse:
+      type: object
+      properties:
+        collectionKey:
+          type: string
+        collectionName:
+          type: string
+        ownerUserId:
+          type: string
+        ownerName:
+          type: string
+        sharedAt:
+          type: string
+          format: date-time

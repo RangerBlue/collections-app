@@ -7,6 +7,12 @@ import { CreateCollectionItemRequest } from '../../core/models/create-collection
 import { UpdateCollectionItem } from '../../core/models/update-collection-item.model';
 import { ValidateItemResponse } from '../../core/models/validate-item-response.model';
 import { ItemIdentificationResponse } from '../../core/models/web-detection-response.model';
+import {
+  ShareCollectionRequest,
+  ShareCollectionResponse,
+  CollectionShareEntry,
+  SharedCollectionResponse
+} from '../../core/models/collection-share.model';
 
 @Injectable({
   providedIn: 'root'
@@ -174,6 +180,53 @@ export class CollectionService {
     return this.http.post<ItemIdentificationResponse>(
       `${this.baseUrl}/items/identify`,
       formData,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json'
+        }
+      }
+    );
+  }
+
+  shareCollection(collectionKey: string, email: string): Observable<ShareCollectionResponse> {
+    const request: ShareCollectionRequest = { email };
+    return this.http.post<ShareCollectionResponse>(
+      `${this.baseUrl}/${collectionKey}/shares`,
+      request,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json',
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  getCollectionShares(collectionKey: string): Observable<CollectionShareEntry[]> {
+    return this.http.get<CollectionShareEntry[]>(
+      `${this.baseUrl}/${collectionKey}/shares`,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json'
+        }
+      }
+    );
+  }
+
+  revokeCollectionShare(collectionKey: string, targetUserId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.baseUrl}/${collectionKey}/shares/${targetUserId}`,
+      {
+        headers: {
+          'Accept': 'application/vnd.hal+json'
+        }
+      }
+    );
+  }
+
+  getSharedWithMe(): Observable<SharedCollectionResponse[]> {
+    return this.http.get<SharedCollectionResponse[]>(
+      `${this.baseUrl}/shared-with-me`,
       {
         headers: {
           'Accept': 'application/vnd.hal+json'

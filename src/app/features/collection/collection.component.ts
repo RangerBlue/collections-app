@@ -8,6 +8,9 @@ import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image
 import { CollectionService } from './collection.service';
 import { CollectionItemResponse, CollectionItemSummary, UserCollectionResponse } from '../../core/models/collection-item.model';
 import { UpdateCollectionItem } from '../../core/models/update-collection-item.model';
+import { CollectionShareEntry, SharedCollectionResponse } from '../../core/models/collection-share.model';
+
+type CollectionViewMode = 'owned' | 'shared';
 
 type CropShape = 'rectangle' | 'circle';
 
@@ -73,6 +76,26 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   // Sorting
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
+  // Collection view mode (owned vs shared)
+  readonly collectionViewMode = signal<CollectionViewMode>('owned');
+
+  // Share modal
+  readonly isShareModalOpen = signal<boolean>(false);
+  readonly shareEmail = signal<string>('');
+  readonly isSharing = signal<boolean>(false);
+  readonly shareError = signal<string | null>(null);
+  readonly shareSuccess = signal<string | null>(null);
+
+  // Collection shares list
+  readonly collectionShares = signal<CollectionShareEntry[]>([]);
+  readonly isLoadingShares = signal<boolean>(false);
+  readonly isRevokingShare = signal<string | null>(null);
+
+  // Shared with me collections
+  readonly sharedWithMeCollections = signal<SharedCollectionResponse[]>([]);
+  readonly isLoadingSharedWithMe = signal<boolean>(false);
+  readonly selectedSharedCollection = signal<SharedCollectionResponse | null>(null);
 
   readonly hasMore = computed(() => this.currentPage() < this.totalPages() - 1);
   readonly hasPrevious = computed(() => this.currentPage() > 0);
@@ -422,6 +445,127 @@ export class CollectionComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Error deleting item:', err);
         this.error.set('Failed to delete item. Please try again.');
+      }
+    });
+  }
+
+  // View mode methods
+  switchToOwned(): void {
+    if (this.collectionViewMode() === 'owned') return;
+    this.collectionViewMode.set('owned');
+    this.selectedSharedCollection.set(null);
+    if (this.collections().length > 0) {
+      this.selectedCollectionKey.set(this.collections()[0].collectionKey);
+      this.currentPage.set(0);
+      this.clearSearch();
+      this.loadItems();
+    }
+  }
+
+  switchToShared(): void {
+    if (this.collectionViewMode() === 'shared') return;
+    this.collectionViewMode.set('shared');
+    this.selectedCollectionKey.set('');
+    this.items.set([]);
+    this.loadSharedWithMe();
+  }
+
+  loadSharedWithMe(): void {
+    this.isLoadingSharedWithMe.set(true);
+    this.collectionService.getSharedWithMe().subscribe({
+      next: (collections) => {
+        this.sharedWithMeCollections.set(collections);
+        this.isLoadingSharedWithMe.set(false);
+        if (collections.length > 0 && !this.selectedSharedCollection()) {
+          this.selectSharedCollection(collections[0]);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load shared collections:', err);
+        this.error.set('Failed to load shared collections. Please try again.');
+        this.isLoadingSharedWithMe.set(false);
+      }
+    });
+  }
+
+  selectSharedCollection(collection: SharedCollectionResponse): void {
+    this.selectedSharedCollection.set(collection);
+    this.selectedCollectionKey.set(collection.collectionKey);
+    this.currentPage.set(0);
+    this.clearSearch();
+    this.loadItems();
+  }
+
+  // Share modal methods
+  openShareModal(): void {
+    this.shareEmail.set('');
+    this.shareError.set(null);
+    this.shareSuccess.set(null);
+    this.isShareModalOpen.set(true);
+    this.loadCollectionShares();
+  }
+
+  closeShareModal(): void {
+    this.isShareModalOpen.set(false);
+  }
+
+  loadCollectionShares(): void {
+    const collectionKey = this.selectedCollectionKey();
+    if (!collectionKey) return;
+
+    this.isLoadingShares.set(true);
+    this.collectionService.getCollectionShares(collectionKey).subscribe({
+      next: (shares) => {
+        this.collectionShares.set(shares);
+        this.isLoadingShares.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load collection shares:', err);
+        this.isLoadingShares.set(false);
+      }
+    });
+  }
+
+  shareCollection(): void {
+    const collectionKey = this.selectedCollectionKey();
+    const email = this.shareEmail().trim();
+    if (!collectionKey || !email) return;
+
+    this.isSharing.set(true);
+    this.shareError.set(null);
+    this.shareSuccess.set(null);
+
+    this.collectionService.shareCollection(collectionKey, email).subscribe({
+      next: (response) => {
+        this.shareSuccess.set(response.message || `Collection shared with ${email}`);
+        this.shareEmail.set('');
+        this.isSharing.set(false);
+        this.loadCollectionShares();
+      },
+      error: (err) => {
+        console.error('Failed to share collection:', err);
+        this.shareError.set(err.error?.message || 'Failed to share collection. Please try again.');
+        this.isSharing.set(false);
+      }
+    });
+  }
+
+  revokeShare(userId: string): void {
+    const collectionKey = this.selectedCollectionKey();
+    if (!collectionKey) return;
+
+    if (!confirm('Are you sure you want to revoke access for this user?')) return;
+
+    this.isRevokingShare.set(userId);
+    this.collectionService.revokeCollectionShare(collectionKey, userId).subscribe({
+      next: () => {
+        this.isRevokingShare.set(null);
+        this.loadCollectionShares();
+      },
+      error: (err) => {
+        console.error('Failed to revoke share:', err);
+        this.shareError.set('Failed to revoke access. Please try again.');
+        this.isRevokingShare.set(null);
       }
     });
   }
